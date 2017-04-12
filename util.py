@@ -22,6 +22,7 @@ def download_titlekeys_json():
         log(error)
 
 def decode_titleid(titleid):
+    content_type = ""
     if titleid[4:8] == '0000':
         content_type = 'GAME'
     elif titleid[4:8] == '000c':
