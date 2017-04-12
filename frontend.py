@@ -6,23 +6,19 @@ from ttk import *
 import threading
 import time
 
-from logger import *
+from logger import log
 import settings
 import util
+import json
 
-
-
-def toggle_verbose():
-    pass
-
-def toggle_debug():
-    pass
-
-def toggle_server():
-    pass
+gamelist_array = []
 
 def save_settings():
-    pass
+    settings.set_title_key_url(url_input.get())
+    settings.save_settings()
+
+
+
 
 root = Tk()
 root.title("FunKiiU Frontend")
@@ -39,11 +35,12 @@ search_tab.columnconfigure(0, weight=1)
 search_tab.columnconfigure(1, weight=1)
 search_tab.rowconfigure(0, weight=1)
 searchlist = Listbox(search_tab, height=20, width=80)
+searchlist.config(width=80)
 searchlist.grid(row=0, column=0, sticky=NSEW, columnspan=2)
 searchlist.columnconfigure(0, weight=1)
 searchlist.rowconfigure(0, weight=1)
-playerbox = Listbox(search_tab, height=20, width=20)
-playerbox.grid(row=0, column=3, sticky=N+S)
+downloadlist = Listbox(search_tab, height=20, width=20)
+downloadlist.grid(row=0, column=3, sticky=N+S)
 
 #players_tab stuff here
 players_tab = Frame(note)
@@ -59,57 +56,18 @@ settings_tab = Frame(note)
 settings_tab.rowconfigure(0, weight=1)
 settings_tab.rowconfigure(1, weight=1)
 settings_tab.rowconfigure(2, weight=1)
-settings_tab.rowconfigure(3, weight=1)
-settings_tab.rowconfigure(4, weight=1)
-settings_tab.rowconfigure(5, weight=1)
-settings_tab.rowconfigure(6, weight=1)
-
-verbose_chk = IntVar()
-verbose_checkbox = Checkbutton(settings_tab,text = "Verbose Logging",command = toggle_verbose,variable=verbose_chk)
-verbose_checkbox.grid(row=0, column=0, sticky=W)
 
 
-debug_chk = IntVar()
-debug_checkbox = Checkbutton(settings_tab,text = "Debug Logging",command = toggle_debug,variable=debug_chk)
-debug_checkbox.grid(row=1, column=0, sticky=W)
+url_label = Label(settings_tab, text="Title Key Website:")
+url_label.grid(row=0, column=0)
+url_input = Entry(settings_tab, width=20)
+url_input.grid(row=0, column=1, sticky=W)
+url_label_cont = Label(settings_tab, text=" (https://xxxx.xxxxxxxxx.com/)")
+url_label_cont.grid(row=0, column=3)
 
-
-server_chk = IntVar()
-server_checkbox = Checkbutton(settings_tab,text = "Server",command = toggle_server,variable=server_chk)
-server_checkbox.grid(row=2, column=0, sticky=W)
-
-
-motd_label = Label(settings_tab, width=10, text="MOTD: ")
-motd_label.grid(row=3, column=0)
-motd_input = Entry(settings_tab, width=30)
-motd_input.grid(row=3, column=1, sticky=W)
-
-
-host_label = Label(settings_tab, width=10, text="Host: ")
-host_label.grid(row=4, column=0)
-host_input = Entry(settings_tab, width=15)
-host_input.grid(row=4, column=1, sticky=W)
-
-
-port_label = Label(settings_tab, width=10, text="Port: ")
-port_label.grid(row=5, column=0)
-port_input = Entry(settings_tab, width=15)
-port_input.grid(row=5, column=1, sticky=W)
-
-
-claim_label = Label(settings_tab, width=10, text="Claim Radius: ")
-claim_label.grid(row=6, column=0)
-claim_input = Entry(settings_tab, width=15)
-claim_input.grid(row=6, column=1, sticky=W)
-
-
-
-
-
-
-save_btn = Button(settings_tab,text = "Save",command = save_settings)
+save_btn = Button(settings_tab, text="Save", command=save_settings)
 save_btn.grid(row=7, column=0, sticky=E)
-spacer = Label(settings_tab).grid(row=8,column=0)
+spacer = Label(settings_tab).grid(row=8, column=0)
 
 #system_tab stuff here
 system_tab = Frame(note)
@@ -119,58 +77,47 @@ time_var.set("Time: 0m")
 time_label = Label(system_tab,width=15,textvariable=time_var)
 time_label.grid(row=0, column=0)
 
-def show_player_info(name):
-    infobox.delete("1.0", END)
-    player = memorydb.get_player_from_name(name)
-    infobox.insert(END, "Name:"+ player.name+ "\n")
-    infobox.insert(END, "SteamID:"+ str(player.steamid)+ "\n")
-    infobox.insert(END, "IP:"+ player.ip+ "\n")
-    infobox.insert(END, "Last Location:"+ player.location+ "\n")
-
-def addInfo(info):
-    textbox.insert(END, info + '\n')
-    textbox.see(END)
-
-def refreshPlayerList():
-    if int(playerbox.index('end-1c').split(".")[0])-1 != len(memorydb.online_players):
-        playerbox.delete("1.0", END)
-        online_players = memorydb.get_online_players()
-        for player in online_players:
-            playerbox.insert("1.0", player + "\n")
-
-def refreshInfoList():
-    if int(playerlist.index('end')) != len(memorydb.player_array):
-        playerlist.delete(0, END)
-        for player in memorydb.player_array:
-            playerlist.insert(1, player.name)
-
-def func(event):
-    cmd = input.get()
-    telconn.write_out(cmd)
-    logger.log("Command sent: " + cmd)
-    input.delete(0, END)
 
 def listclick(e):
     show_player_info(str(playerlist.get(playerlist.curselection())))
 
-def set_motd(e):
-    runtime.motd = motd_input.get()
 
 def handler():
     root.destroy()
 
+def check_tilekey_json():
+    try:
+        with open('titlekeys.json') as jsonfile:
+            parsed_json = json.load(jsonfile)
+            for game in parsed_json:
+                gamelist_array.append(game)
+            gamelist_array.sort()
+            gamelist_array.reverse()
+    except IOError as e:
+        if (settings.titleKeyURL != ""):
+            util.download_titlekeys_json()
+        else:
+            log("Title key site not set in settings")
+
+def refresh_gamelist():
+    for game in gamelist_array:
+        if (game["name"] == "1001 Spikes"):
+            searchlist.insert(END, game["name"] + "-" + util.decode_titleid(game["titleID"]) + "-" + util.get_title_size(game["titleID"]))
+
 playerlist.bind('<<ListboxSelect>>', listclick)
-note.add(players_tab, text = "Search")
+note.add(search_tab, text="Search")
 
-motd_input.bind('<KeyRelease>',set_motd)
 
-note.add(settings_tab, text = "Settings")
+note.add(settings_tab, text= "Settings")
 
-note.add(system_tab, text = "Info")
+note.add(system_tab, text="Info")
 
 root.protocol("WM_DELETE_WINDOW", handler)
 
-
+# initialization steps
+url_input.insert(0,settings.titleKeyURL)
+check_tilekey_json()
+refresh_gamelist()
 
 
 try:

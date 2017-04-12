@@ -20,7 +20,8 @@ def read_settings():
     settings = ConfigParser.RawConfigParser()
     settings.read('settings.cfg')
     global titleKeyURL
-    titleKeyURL = settings.get('Settings', 'titleKeyURL')
+    set_title_key_url(settings.get('Settings', 'titleKeyURL'))
+    logger.log("Settings loaded")
 
 
 def save_settings():
@@ -30,6 +31,7 @@ def save_settings():
     settings.set('Settings', 'titleKeyURL', titleKeyURL)
     with open('settings.cfg', 'wb') as settingsfile:
         settings.write(settingsfile)
+        logger.log("Settings saved")
 
 
 def set_title_key_url(url):
