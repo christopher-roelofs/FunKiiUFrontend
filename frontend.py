@@ -102,11 +102,16 @@ search_tab = Frame(note)
 search_tab.columnconfigure(0, weight=1)
 search_tab.columnconfigure(1, weight=1)
 search_tab.rowconfigure(0, weight=1)
-searchlist = Listbox(search_tab, height=20, width=80)
-searchlist.config(width=80)
+searchlist = Listbox(search_tab, height=20, width=40)
+searchlist.config(width=30)
 searchlist.grid(row=0, column=0, sticky=NSEW, columnspan=2)
 searchlist.columnconfigure(0, weight=1)
 searchlist.rowconfigure(0, weight=1)
+
+yscroll = Scrollbar(searchlist,command=searchlist.yview, orient=VERTICAL)
+yscroll.grid(row=0, column=1, sticky='ns')
+searchlist.configure(yscrollcommand=yscroll.set)
+
 downloadlist = Listbox(search_tab, height=20, width=20)
 downloadlist.grid(row=0, column=3, sticky=N+S)
 
