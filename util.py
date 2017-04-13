@@ -13,6 +13,16 @@ try:
 except Exception as e:
     pass
 
+class Game(object):
+    def __init__(self):
+        self.name = ""
+        self.titlekey = ""
+        self.titleid = ""
+        self.region = ""
+        self.type = ""
+        self.ticket = False
+        self.listname = ""
+
 def download_titlekeys_json():
     log("Attempting to download titlekey json...")
     try:

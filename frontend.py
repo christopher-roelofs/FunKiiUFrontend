@@ -11,6 +11,7 @@ from util import *
 from settings import *
 import json
 from unidecode import unidecode
+import unicodedata
 
 gamelist_array = []
 
@@ -87,6 +88,8 @@ def toggle_show_game():
         if "GAME" in settings.filters:
             settings.filters.remove("GAME")
 
+
+
 root = Tk()
 root.title("FunKiiU Frontend")
 root.columnconfigure(0, weight=1)
@@ -103,7 +106,7 @@ search_tab.columnconfigure(0, weight=1)
 search_tab.columnconfigure(1, weight=1)
 search_tab.rowconfigure(0, weight=1)
 searchlist = Listbox(search_tab, height=20, width=40)
-searchlist.config(width=30)
+searchlist.config(width=40)
 searchlist.grid(row=0, column=0, sticky=NSEW, columnspan=2)
 searchlist.columnconfigure(0, weight=1)
 searchlist.rowconfigure(0, weight=1)
@@ -111,6 +114,27 @@ searchlist.rowconfigure(0, weight=1)
 yscroll = Scrollbar(searchlist,command=searchlist.yview, orient=VERTICAL)
 yscroll.grid(row=0, column=1, sticky='ns')
 searchlist.configure(yscrollcommand=yscroll.set)
+
+spacer_label1 = Label(search_tab, text="")
+spacer_label1.grid(row=1, column=0 ,sticky=W)
+
+
+infobox = Text(search_tab, height=7, width=30)
+infobox.grid(row=1, column=0, sticky="nsew")
+
+def search_select(e):
+    infobox.delete("1.0", END)
+    for game in gamelist_array:
+        if game.listname == str(searchlist.get(searchlist.curselection())):
+            infobox.insert(END,"Name: " + game.name + "\n")
+            infobox.insert(END, "Region: " + game.region + "\n")
+            infobox.insert(END, "Type: " + game.type + "\n")
+            infobox.insert(END, "TitleID: " + game.titleid + "\n")
+            infobox.insert(END, "TitleKey: " + game.titlekey + "\n")
+            infobox.insert(END, "Online Ticket: " + str(game.ticket) + "\n")
+            infobox.insert(END, "Size: " + get_title_size(game.titleid))
+
+searchlist.bind('<<ListboxSelect>>', search_select)
 
 downloadlist = Listbox(search_tab, height=20, width=20)
 downloadlist.grid(row=0, column=3, sticky=N+S)
@@ -219,8 +243,7 @@ players_tab.columnconfigure(0, weight=1)
 players_tab.rowconfigure(0, weight=1)
 playerlist = Listbox(players_tab, height=20, width=20)
 playerlist.grid(row=0, column=1, sticky=N+S)
-infobox = Text(players_tab, height=10, width=80)
-infobox.grid(row=0, column=0, sticky=N+E+W)
+
 
 
 
@@ -235,11 +258,6 @@ time_var.set("Time: 0m")
 time_label = Label(system_tab,width=15,textvariable=time_var)
 time_label.grid(row=0, column=0)
 
-
-def listclick(e):
-    show_player_info(str(playerlist.get(playerlist.curselection())))
-
-
 def handler():
     root.destroy()
 
@@ -247,10 +265,27 @@ def check_tilekey_json():
     try:
         with open('titlekeys.json') as jsonfile:
             parsed_json = json.load(jsonfile)
-            for game in parsed_json:
-                gamelist_array.append(game)
-            gamelist_array.sort()
-            #gamelist_array.reverse()
+            for record in parsed_json:
+                game = Game()
+                if record["name"] is not None:
+                    game.name = record["name"].encode('ascii', 'ignore')
+                if record["titleKey"] is not None:
+                    game.titlekey= record["titleKey"]
+                if record["region"]is not None:
+                    game.region = record["region"]
+                if record["titleID"] is not None:
+                    game.titleid = record["titleID"]
+                if record["titleID"] is not None:
+                    game.type = decode_titleid(record["titleID"])
+                game.listname = game.name + " - " + game.type + " - " + game.region
+                if record["ticket"] == 1:
+                    game.ticket = True
+                else:
+                    game.ticket = False
+                if game.name != "":
+                    gamelist_array.append(game)
+
+            gamelist_array.sort(key =lambda game: game.name)
     except IOError as e:
         if (settings.titleKeyURL != ""):
             download_titlekeys_json()
@@ -260,8 +295,8 @@ def check_tilekey_json():
 def refresh_gamelist():
     searchlist.delete(0, END)
     for game in gamelist_array:
-        if game["region"] in filters and decode_titleid(game["titleID"]) in filters:
-            searchlist.insert(END, game["name"])
+        if game.region in filters and decode_titleid(game.titleid) in filters:
+            searchlist.insert(END, game.listname.encode('UTF-8'))
 
 #playerlist.bind('<<ListboxSelect>>', listclick)
 note.add(search_tab, text="Search")
