@@ -2,6 +2,7 @@
 
 import ConfigParser
 import logger
+import os
 
 titleKeyURL = ""
 filters = []
@@ -9,7 +10,10 @@ ticketOnly = ""
 downloadDir = ""
 patchDEMO = ""
 patchDLC = ""
-
+titleKeyNag = ""
+maxDownloads = ""
+retry = ""
+dlKeysStartup = ""
 
 def create_settings():
     """Create an empty settings file."""
@@ -27,6 +31,10 @@ def create_settings():
     settings.set("Settings", "ticketOnly", "False")
     settings.set("Settings", "patchDEMO", "True")
     settings.set("Settings", "patchDLC", "True")
+    settings.set("Settings", "titleKeyNag", "True")
+    settings.set("Settings", "maxDownloads", "1")
+    settings.set("Settings", "retry", "3")
+    settings.set("Settings", "dlKeysStartup", "3")
     with open("settings.cfg", "wb") as settingsfile:
         settings.write(settingsfile)
 
@@ -41,11 +49,19 @@ def read_settings():
     global patchDEMO
     global patchDLC
     global filters
+    global titleKeyNag
+    global maxDownloads
+    global retry
+    global dlKeysStartup
     titleKeyURL = settings.get("Settings", "titleKeyURL")
     downloadDir = settings.get("Settings", "downloadDir")
     ticketOnly = settings.getboolean("Settings", "ticketOnly")
     patchDEMO = settings.getboolean("Settings", "patchDEMO")
     patchDLC = settings.getboolean("Settings", "patchDLC")
+    titleKeyNag = settings.getboolean("Settings", "titleKeyNag")
+    maxDownloads = settings.getint("Settings", "maxDownloads")
+    retry = settings.getint("Settings", "retry")
+    dlKeysStartup = settings.getint("Settings", "dlKeysStartup")
 
     if settings.getboolean("Settings", "showUSA"):
         filters.append("USA")
@@ -80,6 +96,12 @@ def save_settings():
     settings.set("Settings", "ticketOnly", ticketOnly)
     settings.set("Settings", "patchDEMO", patchDEMO)
     settings.set("Settings", "patchDLC", patchDLC)
+    settings.set("Settings", "titleKeyNag", titleKeyNag)
+    settings.set("Settings", "titleKeyNag", titleKeyNag)
+    settings.set("Settings", "maxDownloads", maxDownloads)
+    settings.set("Settings", "retry", retry)
+    settings.set("Settings", "dlKeysStartup", dlKeysStartup)
+
 
     if "USA" in filters:
         settings.set("Settings", "showUSA", "True")
@@ -121,6 +143,7 @@ def save_settings():
         logger.log("Settings saved")
 
 
+
 def set_title_key_url(url):
     """Set the title key url"""
     global titleKeyURL
@@ -131,6 +154,5 @@ try:
         read_settings()
 except IOError as e:
     logger.log("No config file, so one is being created")
-    logger.log("Please edit the config file and try again")
     create_settings()
     read_settings()

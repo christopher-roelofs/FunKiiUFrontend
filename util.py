@@ -5,13 +5,25 @@ import settings
 from logger import *
 import binascii
 import os
+import zipfile
 
 funkiiu_url = "https://raw.githubusercontent.com/llakssz/FunKiiU/master/FunKiiU.py"
+wiiutdb_url = "http://www.gametdb.com/wiiutdb.zip"
 
 try:
     import FunKiiU as fnk
 except Exception as e:
     pass
+
+def unpack_zip(zip_name):
+    try:
+        zip_ref = zipfile.ZipFile(zip_name, 'r')
+        zip_ref.extractall(os.curdir)
+        zip_ref.close()
+        os.remove(zip_name)
+    except Exception as e:
+        log('Error:', e)
+
 
 class Game(object):
     def __init__(self):
@@ -22,12 +34,32 @@ class Game(object):
         self.type = ""
         self.ticket = False
         self.listname = ""
+        self.description = ""
+        self.size = ""
+        self.status = ""
+        self.downloadcallback = ""
 
 def download_titlekeys_json():
     log("Attempting to download titlekey json...")
     try:
-        urllib.urlretrieve(settings.titleKeyURL + "json", "titlekeys.json")
+        urllib.urlretrieve("http://" + settings.titleKeyURL + "/json", "titlekeys.json")
         log("titlekeys.json successfully downloaded.")
+    except Exception as error:
+        log(error)
+def download_titlekeys_rss():
+    log("Attempting to download titlekey rss...")
+    try:
+        urllib.urlretrieve("http://" + settings.titleKeyURL + "/rss", "titlekeysrss.xml")
+        log("titlekeysrss.xml successfully downloaded.")
+    except Exception as error:
+        log("Failed to download rss feed:" + error)
+
+def download_wiiutdb():
+    log("Attempting to download wiiutdb.zip")
+    try:
+        urllib.urlretrieve(wiiutdb_url, "wiiutdb.zip")
+        log("wiiutdb.zip successfully downloaded.")
+        unpack_zip("wiiutdb.zip")
     except Exception as error:
         log(error)
 
@@ -47,10 +79,12 @@ def get_title_size(titleid):
     baseurl = 'http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/{}'.format(titleid)
     TK = fnk.TK
     if not fnk.download_file(baseurl + '/tmd', 'title.tmd', 1):
-        print('ERROR: Could not download TMD...')
+        log('ERROR: Could not download TMD...')
+        return fnk.bytes2human(0)
     else:
         with open('title.tmd', 'rb') as f:
             tmd = f.read()
+            os.remove('title.tmd')
         content_count = int(binascii.hexlify(tmd[TK + 0x9E:TK + 0xA0]), 16)
 
         total_size = 0
@@ -58,8 +92,7 @@ def get_title_size(titleid):
             c_offs = 0xB04 + (0x30 * i)
             c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
             total_size += int(binascii.hexlify(tmd[c_offs + 0x08:c_offs + 0x10]), 16)
-    os.remove('title.tmd')
-    return fnk.bytes2human(total_size)
+        return fnk.bytes2human(total_size)
 
 def download_funkiiu():
     try:
@@ -67,3 +100,5 @@ def download_funkiiu():
         log("FunKiiU successfully downloaded.")
     except Exception as error:
         log(error)
+
+
