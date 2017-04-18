@@ -1,22 +1,21 @@
 #!/usr/bin/python
 
+from util import *
+if not os.path.isfile("FunKiiU.py"):
+    download_funkiiu()
+
 from Tkinter import *
 from ttk import *
 import tkFileDialog
 import downloader
 import tkMessageBox as message
 from logger import log
-from util import *
 from settings import *
 import json
 import os
 import sys
 import thread
 import xml.etree.ElementTree
-
-if not os.path.isfile("FunKiiU.py"):
-    download_funkiiu()
-
 import FunKiiU as fnk
 
 
@@ -274,6 +273,7 @@ def clear_complete():
     for game in templist:
         if game.status != "Complete":
             downloadlist.insert(0, game.listname + " - " + game.status)
+        else:
             download_list.remove(game)
 
 clr_btn = Button(downloads_tab, text="Clear Complete",command=clear_complete)
@@ -481,7 +481,7 @@ def update_rss():
     if settings.titleKeyURL != "":
         site = settings.titleKeyURL
         if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
-            download_titlekeys_rss()
+            thread.start_new_thread(download_titlekeys_rss,())
             if os.path.isfile("titlekeysrss.xml"):
                 e = xml.etree.ElementTree.parse('titlekeysrss.xml').getroot()
                 rssbox.config(state="normal")
@@ -624,7 +624,7 @@ url_input.insert(0,settings.titleKeyURL)
 check_tilekey_json()
 refresh_gamelist()
 initialize_funkiiu_config()
-update_rss()
+thread.start_new_thread(update_rss,())
 
 
 
