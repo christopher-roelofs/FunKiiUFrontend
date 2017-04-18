@@ -22,7 +22,7 @@ def unpack_zip(zip_name):
         zip_ref.close()
         os.remove(zip_name)
     except Exception as e:
-        log('Error:', e)
+        log('Error:' + e)
 
 
 class Game(object):
@@ -84,8 +84,8 @@ def get_title_size(titleid):
     else:
         with open('title.tmd', 'rb') as f:
             tmd = f.read()
-            os.remove('title.tmd')
         content_count = int(binascii.hexlify(tmd[TK + 0x9E:TK + 0xA0]), 16)
+        os.remove('title.tmd')
 
         total_size = 0
         for i in range(content_count):
