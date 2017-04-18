@@ -14,6 +14,7 @@ titleKeyNag = ""
 maxDownloads = ""
 retry = ""
 dlKeysStartup = ""
+dlRssStartup = ""
 
 def create_settings():
     """Create an empty settings file."""
@@ -35,6 +36,7 @@ def create_settings():
     settings.set("Settings", "maxDownloads", "1")
     settings.set("Settings", "retry", "3")
     settings.set("Settings", "dlKeysStartup", "3")
+    settings.set("Settings", "dlRssStartup", "True")
     with open("settings.cfg", "wb") as settingsfile:
         settings.write(settingsfile)
 
@@ -53,6 +55,7 @@ def read_settings():
     global maxDownloads
     global retry
     global dlKeysStartup
+    global dlRssStartup
     titleKeyURL = settings.get("Settings", "titleKeyURL")
     downloadDir = settings.get("Settings", "downloadDir")
     ticketOnly = settings.getboolean("Settings", "ticketOnly")
@@ -62,6 +65,7 @@ def read_settings():
     maxDownloads = settings.getint("Settings", "maxDownloads")
     retry = settings.getint("Settings", "retry")
     dlKeysStartup = settings.getint("Settings", "dlKeysStartup")
+    dlRssStartup = settings.getboolean("Settings", "dlRssStartup")
 
     if settings.getboolean("Settings", "showUSA"):
         filters.append("USA")
@@ -101,6 +105,7 @@ def save_settings():
     settings.set("Settings", "maxDownloads", maxDownloads)
     settings.set("Settings", "retry", retry)
     settings.set("Settings", "dlKeysStartup", dlKeysStartup)
+    settings.set("Settings", "dlRssStartup", dlRssStartup)
 
 
     if "USA" in filters:

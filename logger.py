@@ -7,8 +7,9 @@ def log(msg):
     logs.append(time.strftime("%I:%M:%S") + ": " + msg)
     print(time.strftime("%I:%M:%S") + ": " + msg)
 
-def get_log():
+def get_logs():
     global logs
-    log = logs[-1]
-    logs.remove(log)
-    return log
+    templogs = list(logs)
+    for log in templogs:
+        logs.remove(log)
+    return templogs
