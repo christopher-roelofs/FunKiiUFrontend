@@ -82,6 +82,5 @@ class threaded_download(threading.Thread):
 
 try:
     thread.start_new_thread(download_games,())
-    #pass
 except:
     log("Error: unable to start thread")

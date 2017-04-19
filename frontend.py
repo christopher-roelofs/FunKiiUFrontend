@@ -1,4 +1,9 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import sys
+reload(sys)
+sys.setdefaultencoding("utf8")
 from util import *
 from Tkinter import *
 from ttk import *
@@ -9,7 +14,6 @@ from logger import log
 from settings import *
 import json
 import os
-import sys
 import thread
 import xml.etree.ElementTree
 import FunKiiU as fnk
@@ -17,8 +21,7 @@ import FunKiiU as fnk
 
 
 
-reload(sys)
-sys.setdefaultencoding("utf8")
+
 
 
 gamelist_array = []

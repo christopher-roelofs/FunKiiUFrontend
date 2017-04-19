@@ -2,8 +2,8 @@
 *.log
 *.cfg
 *.idea
-FunKiiU.py
 titlekeys.json
 wiiutdb.xml
 titlekeysrss.xml
 /install
+config.json
