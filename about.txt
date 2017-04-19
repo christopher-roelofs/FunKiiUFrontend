@@ -12,3 +12,4 @@ Changelog
 
 4-19-17 v1.0 initial release
 4-19-17 v1.1 fix imports for FunKiiU
+4-19-17 v1.2 inlcude modified FunKiiU until I refactor it later
