@@ -1,0 +1,13 @@
+FunKiiU Frontend
+
+A frontend for FunKiiU written in Python.
+
+Thanks to cearp for writing FunKiiU,cerea1killer for his re-write of FunKiiU, and dojafoja for
+FunkiiUI which I took inspiration from and a couple pieces of code.
+
+https://github.com/llakssz/FunKiiU
+https://github.com/dojafoja/FunKii-UI
+
+Changelog
+
+4-19-17 v1.0 initial release

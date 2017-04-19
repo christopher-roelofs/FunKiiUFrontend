@@ -504,6 +504,13 @@ refresh_btn.grid(row=0, column=0)
 about_tab = Frame(note)
 about_tab.rowconfigure(0,weight=1)
 about_tab.columnconfigure(0,weight=1)
+aboutbox= Text(about_tab)
+aboutbox.grid(row=0, column=0, sticky="nsew")
+with open("about.txt") as about:
+    for line in about:
+        aboutbox.insert(END,line)
+aboutbox.config(state="disabled")
+
 
 def handler():
     root.destroy()
