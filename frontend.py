@@ -1,9 +1,5 @@
 #!/usr/bin/python
-
 from util import *
-if not os.path.isfile("FunKiiU.py"):
-    download_funkiiu()
-
 from Tkinter import *
 from ttk import *
 import tkFileDialog
@@ -164,6 +160,14 @@ def download_games():
             current_selected.downloadcallback = refresh_download_listbox
             downloader.add_game(current_selected)
             refresh_download_listbox()
+
+def download_funkiiu():
+    try:
+        urllib.urlretrieve(funkiiu_url, "FunKiiU.py")
+        log("FunKiiU successfully downloaded.")
+    except Exception as error:
+        log(error)
+
 
 
 

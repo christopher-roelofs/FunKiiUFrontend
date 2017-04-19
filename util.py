@@ -10,10 +10,19 @@ import zipfile
 funkiiu_url = "https://raw.githubusercontent.com/llakssz/FunKiiU/master/FunKiiU.py"
 wiiutdb_url = "http://www.gametdb.com/wiiutdb.zip"
 
-try:
-    import FunKiiU as fnk
-except Exception as e:
-    pass
+def download_funkiiu():
+    try:
+        urllib.urlretrieve(funkiiu_url, "FunKiiU.py")
+        log("FunKiiU successfully downloaded.")
+    except Exception as error:
+        log(error)
+
+
+if not os.path.isfile("FunKiiU.py"):
+    download_funkiiu()
+
+import FunKiiU as fnk
+
 
 def unpack_zip(zip_name):
     try:
@@ -93,12 +102,4 @@ def get_title_size(titleid):
             c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
             total_size += int(binascii.hexlify(tmd[c_offs + 0x08:c_offs + 0x10]), 16)
         return fnk.bytes2human(total_size)
-
-def download_funkiiu():
-    try:
-        urllib.urlretrieve(funkiiu_url, "FunKiiU.py")
-        log("FunKiiU successfully downloaded.")
-    except Exception as error:
-        log(error)
-
 
