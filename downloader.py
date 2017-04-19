@@ -67,7 +67,7 @@ class threaded_download(threading.Thread):
         self.game.status = "Downloading"
         self.game.downloadcallback()
         try:
-            fnk.process_title_id(self.game.titleid, self.game.titlekey, self.game.name, self.game.region, os.curdir, settings.retry,
+            fnk.process_title_id(self.game.titleid, self.game.titlekey, self.game.name, self.game.region, settings.downloadDir, settings.retry,
                                  self.game.ticket, settings.patchDEMO, settings.patchDLC, False, False)
             self.game.status = "Complete"
             self.game.downloadcallback()

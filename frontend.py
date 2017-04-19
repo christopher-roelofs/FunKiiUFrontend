@@ -35,6 +35,7 @@ def save_settings():
     settings.save_settings()
     check_tilekey_json()
     refresh_gamelist()
+    update_rss()
 
 def toggle_dlkeys():
     if dlKeys_chk.get() == 1:
@@ -631,8 +632,9 @@ thread.start_new_thread(update_rss,())
 if settings.titleKeyNag:
     message.showinfo("Title Keys","Before you can download any games\nYou will need to add the url from that title keys website\nin the settings and save.")
     settings.titleKeyNag = False
-    save_settings()
     note.select(settings_tab)
+    url_input.focus_force()
+    save_settings()
 
 
 thread.start_new_thread(update_log_tab,())
