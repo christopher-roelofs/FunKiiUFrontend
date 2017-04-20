@@ -10,6 +10,17 @@ https://github.com/dojafoja/FunKii-UI
 
 Changelog
 
-4-19-17 v1.0 initial release
-4-19-17 v1.1 fix imports for FunKiiU
-4-19-17 v1.2 inlcude modified FunKiiU until I refactor it later
+4-19-17 v1.0 
+initial release
+
+4-19-17 v1.1 
+fix imports for FunKiiU
+
+
+4-19-17 v1.2
+inlcude modified FunKiiU until I refactor it later
+
+v1.21
+change startup threads a bit
+update patch demo/dlc descriptions
+
