@@ -380,19 +380,19 @@ max_download_drop.bind("<<ComboboxSelected>>", update_max_downloads)
 max_download_drop.grid(row=5, column=1, sticky=W)
 
 ticketonly_chk = IntVar()
-ticketonly_checkbox = Checkbutton(settings_tab,text = "Legitimate tickets only",command = toggle_ticket_only,variable=ticketonly_chk)
+ticketonly_checkbox = Checkbutton(settings_tab,text = "Show games with legitimate tickets only",command = toggle_ticket_only,variable=ticketonly_chk)
 ticketonly_checkbox.grid(row=6, column=0, sticky=W)
 if settings.ticketOnly:
     ticketonly_chk.set(1)
 
 patchdemo_chk = IntVar()
-patchdemo_checkbox = Checkbutton(settings_tab,text = "Patch demos",command = toggle_patch_demo,variable=patchdemo_chk)
+patchdemo_checkbox = Checkbutton(settings_tab,text = "Patch demos to remove any play count limits",command = toggle_patch_demo,variable=patchdemo_chk)
 patchdemo_checkbox.grid(row=7, column=0, sticky=W)
 if settings.patchDEMO:
     patchdemo_chk.set(1)
 
 patchdlc_chk = IntVar()
-patchdlc_checkbox = Checkbutton(settings_tab,text = "Patch DLC",command = toggle_patch_dlc,variable=patchdlc_chk)
+patchdlc_checkbox = Checkbutton(settings_tab,text = "Patch DLC to unlock all pieces of DLC",command = toggle_patch_dlc,variable=patchdlc_chk)
 patchdlc_checkbox.grid(row=7, column=1, sticky=W)
 if settings.patchDLC:
     patchdlc_chk.set(1)
