@@ -34,7 +34,7 @@ def save_settings():
     settings.save_settings()
     check_tilekey_json()
     refresh_gamelist()
-    update_rss()
+    thread.start_new_thread(update_rss,())
 
 def toggle_dlkeys():
     if dlKeys_chk.get() == 1:
@@ -489,7 +489,7 @@ def update_rss():
     if settings.titleKeyURL != "":
         site = settings.titleKeyURL
         if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
-            thread.start_new_thread(download_titlekeys_rss,())
+            download_titlekeys_rss()
             if os.path.isfile("titlekeysrss.xml"):
                 e = xml.etree.ElementTree.parse('titlekeysrss.xml').getroot()
                 rssbox.config(state="normal")
@@ -504,7 +504,10 @@ def update_rss():
         else:
             log("Incorrect titlekey url")
 
-refresh_btn = Button(rss_tab, text="Refresh", command=update_rss)
+def refresh_btn():
+    thread.start_new_thread(update_rss,())
+
+refresh_btn = Button(rss_tab, text="Refresh", command=refresh_btn)
 refresh_btn.grid(row=0, column=0)
 
 #about_tab stuff here
@@ -560,8 +563,7 @@ def check_tilekey_json():
             site = settings.titleKeyURL
             if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
                 message.showinfo("Success!","Correct titlekey URL\n we will now download the file and refresh")
-                download_titlekeys_json()
-                load_titlekeys()
+                thread.start_new(update_tilekey_json,())
             else:
                 message.showwarning("Wrong URL", "You entered the wrong URL\n please try again")
         else:
