@@ -10,7 +10,7 @@ https://github.com/dojafoja/FunKii-UI
 
 Changelog
 
-4-24-17 v1.21
+4-24-17 v1.2.1
 change startup threads a bit
 update patch demo/dlc descriptions
 
