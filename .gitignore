@@ -5,5 +5,5 @@
 titlekeys.json
 wiiutdb.xml
 titlekeysrss.xml
-/install
+src/install
 config.json

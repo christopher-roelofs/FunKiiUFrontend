@@ -132,7 +132,6 @@ def toggle_show_game():
 
 def update_max_downloads(e):
     settings.maxDownloads = int(max_download_drop.get())
-    print settings.maxDownloads
 
 def update_max_retry(e):
     settings.retries = int(retry_drop.get())

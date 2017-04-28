@@ -11,7 +11,7 @@ import time
 from logger import log
 
 download_list = []
-downloading = []
+downloading = 0
 
 def download_games():
     global downloading
@@ -20,11 +20,9 @@ def download_games():
         time.sleep(1)
         if len(download_list) > 0:
             game = download_list[-1]
-            if len(downloading) < settings.maxDownloads:
-                download = threaded_download()
-                downloading.append(download)
-                download.setGame(game)
-                download.start()
+            if downloading < settings.maxDownloads:
+                downloading += 1
+                thread.start_new_thread(download_game, (game,))
                 download_list.remove(game)
 
 
@@ -78,6 +76,23 @@ class threaded_download(threading.Thread):
             self.game.downloadcallback()
             downloading.remove(self)
             log("download failed:" + self.game.listname)
+
+def download_game(game):
+    global downloading
+    log("downloading:" + game.listname)
+    game.status = "Downloading"
+    game.downloadcallback()
+    try:
+        fnk.process_title_id(game.titleid, game.titlekey, game.name, game.region, os.curdir, 3, game.ticket,settings.patchDEMO, settings.patchDLC, False, False)
+        game.status = "Complete"
+        game.downloadcallback()
+        log("done downloading:" + game.listname)
+        downloading -= 1
+    except Exception as e:
+        game.status = "Failed"
+        game.downloadcallback()
+        downloading -= 1
+        log("download failed:" + game.listname)
 
 
 try:
