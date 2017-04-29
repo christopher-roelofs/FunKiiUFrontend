@@ -7,3 +7,6 @@ wiiutdb.xml
 titlekeysrss.xml
 src/install
 config.json
+releases/
+src/.vscode/
+

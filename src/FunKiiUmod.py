@@ -1,12 +1,16 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-#  FunKiiU 2.2
+
+""" 
+FunKiiUmod
+
+Original FunKiiU by llakssz https://github.com/llakssz/FunKiiU
+
+"""
 
 from __future__ import unicode_literals, print_function
 
 __VERSION__ = 2.2
 
-import argparse
 import base64
 import binascii
 import hashlib
@@ -27,7 +31,9 @@ try:
 except NameError:
     real_input = input  # Python3
 
-b64decompress = lambda d: zlib.decompress(base64.b64decode(d))
+
+def b64decompress(d): return zlib.decompress(base64.b64decode(d))
+
 
 SYMBOLS = {
     'customary': ('B', 'KB', 'MB', 'GB', 'T', 'P', 'E', 'Z', 'Y'),
@@ -38,30 +44,6 @@ MAGIC = binascii.a2b_hex('00010003704138EFBBBDA16A987DD901326D1C9459484C88A2861B
 TIKTEM = binascii.a2b_hex('00010004d15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11ad15ea5ed15abe11a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000526f6f742d434130303030303030332d585330303030303030630000000000000000000000000000000000000000000000000000000000000000000000000000feedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedface010000cccccccccccccccccccccccccccccccc00000000000000000000000000aaaaaaaaaaaaaaaa00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010014000000ac000000140001001400000000000000280000000100000084000000840003000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000')
 
 TK = 0x140
-
-parser = argparse.ArgumentParser()
-parser.add_argument('-outputdir', action='store', dest='output_dir',
-                    help='The custom output directory to store output in, if desired')
-parser.add_argument('-retry', type=int, default=4, dest='retry_count',
-                    choices=range(0, 10), help='How many times a file download will be attempted')
-parser.add_argument('-title', nargs='+', dest='titles', default=[],
-                    help='Give TitleIDs to be specifically downloaded')
-parser.add_argument('-key', nargs='+', dest='keys', default=[],
-                    help='Encrypted Title Key for the Title IDs. Must be in the same order as TitleIDs if multiple')
-parser.add_argument('-onlinekeys', action='store_true', default=False, dest='onlinekeys',
-                    help='Gets latest titlekeys.json file from *theykeysite*, saves (overwrites) it and uses as input')
-parser.add_argument('-onlinetickets', action='store_true', default=False, dest='onlinetickets',
-                    help='Gets ticket file from *thekeysite*, should create a \'legit\' game')
-parser.add_argument('-nopatchdlc', action='store_false', default=True,
-                    dest='patch_dlc', help='This will disable unlocking all DLC content')
-parser.add_argument('-nopatchdemo', action='store_false', default=True,
-                    dest='patch_demo', help='This will disable patching the demo play limit')
-parser.add_argument('-region', nargs="?", default=[], dest='download_regions',
-                    help='Downloads/gets tickets for regions: [EUR|USA|JPN] from the keyfile')
-parser.add_argument('-simulate', action='store_true', default=False, dest='simulate',
-                    help="Don't download anything, just do like you would.")
-parser.add_argument('-ticketsonly', action='store_true', default=False, dest='tickets_only',
-                    help="Only download/generate tickets (and TMD and CERT), don't download any content")
 
 
 def bytes2human(n, f='%(value).2f %(symbol)s', symbols='customary'):
@@ -99,7 +81,8 @@ def progress_bar(part, total, length=10, char='#', blank=' ', left='[', right=']
     bar = char * bar_len
     blanks = blank * (length - bar_len)
     return '{}{}{}{} {} of {}, {}%'.format(
-        left, bar, blanks, right, bytes2human(part), bytes2human(total), percent
+        left, bar, blanks, right, bytes2human(
+            part), bytes2human(total), percent
     ) + ' ' * 20
 
 
@@ -114,22 +97,25 @@ def download_file(url, outfname, retry_count=3, ignore_404=False, expected_size=
             else:
                 diskFilesize = 0
             try:
-                print('-Downloading {}.\n-File size is {}.\n-File in disk is {}.'.format(outfname, expected_size,diskFilesize))
+                print('-Downloading {}.\n-File size is {}.\n-File in disk is {}.'.format(
+                    outfname, expected_size, diskFilesize))
             except UnicodeEncodeError:
-                print('-Downloading {}.\n-File size is {}.\n-File in disk is {}.'.format(repr(outfname), expected_size,diskFilesize))
+                print('-Downloading {}.\n-File size is {}.\n-File in disk is {}.'.format(
+                    repr(outfname), expected_size, diskFilesize))
 
-            #if not (expected_size is None):
+            # if not (expected_size is None):
             if expected_size != diskFilesize:
                 with open(outfname, 'wb') as outfile:
                     downloaded_size = 0
                     while True:
-                         buf = infile.read(chunk_size)
-                         if not buf:
-                             break
-                         downloaded_size += len(buf)
-                         if expected_size and len(buf) == chunk_size:
-                             print(' Downloaded {}'.format(progress_bar(downloaded_size, expected_size)), end='\r')
-                         outfile.write(buf)
+                        buf = infile.read(chunk_size)
+                        if not buf:
+                            break
+                        downloaded_size += len(buf)
+                        if expected_size and len(buf) == chunk_size:
+                            print(' Downloaded {}'.format(progress_bar(
+                                downloaded_size, expected_size)), end='\r')
+                        outfile.write(buf)
             else:
                 print('-File skipped.')
                 downloaded_size = statinfo.st_size
@@ -140,7 +126,8 @@ def download_file(url, outfname, retry_count=3, ignore_404=False, expected_size=
                     print('Content download not correct size\n')
                     continue
                 else:
-                    print('Download complete: {}\n'.format(bytes2human(downloaded_size)) + ' ' * 40)
+                    print('Download complete: {}\n'.format(
+                        bytes2human(downloaded_size)) + ' ' * 40)
         except HTTPError as e:
             if e.code == 404 and ignore_404:
                 # We are ignoring this because its a 404 error, not a failure
@@ -173,7 +160,8 @@ def get_keysite():
         if sys.stdin.isatty():
             for _ in retry(3):
                 print('Please type *the* keysite to access online keys and tickets')
-                print('Type something like: \'aaaa.bbbbbbbbb.ccc\', no http:// or quotes')
+                print(
+                    'Type something like: \'aaaa.bbbbbbbbb.ccc\', no http:// or quotes')
                 print('A blank response will exit')
                 checkurl = real_input().lower().strip()
 
@@ -199,7 +187,8 @@ def get_keysite():
 
 
 def patch_ticket_dlc(tikdata):
-    tikdata[TK + 0x164:TK + 0x210] = b64decompress('eNpjYGQQYWBgWAPEIgwQNghoADEjELeAMTNE8D8BwEBjAABCdSH/')
+    tikdata[TK + 0x164:TK + 0x210] = b64decompress(
+        'eNpjYGQQYWBgWAPEIgwQNghoADEjELeAMTNE8D8BwEBjAABCdSH/')
 
 
 def patch_ticket_demo(tikdata):
@@ -222,207 +211,147 @@ def make_ticket(title_id, title_key, title_version, fulloutputpath, patch_demo=F
 
 
 def safe_filename(filename):
-    """Strip any non-path-safe characters from a filename
-    >>> print(safe_filename("Pokémon"))
-    Pokémon
-    >>> print(safe_filename("幻影異聞録♯ＦＥ"))
-    幻影異聞録_ＦＥ
-    """
     keep = ' ._'
     return re.sub(r'_+', '_', ''.join(c if (c.isalnum() or c in keep) else '_' for c in filename)).strip('_ ')
 
 
-def process_title_id(title_id, title_key, name=None, region=None, output_dir=None, retry_count=3, onlinetickets=False, patch_demo=False,
-                     patch_dlc=False, simulate=False, tickets_only=False):
-    if name:
-        dirname = '{} - {} - {}'.format(title_id, region, name)
-    else:
-        dirname = title_id
-
-    typecheck = title_id[4:8]
-    if typecheck == '000c':
-        dirname = dirname + ' - DLC'
-    elif typecheck == '000e':
-        dirname = dirname + ' - Update'
-
-    rawdir = os.path.join('install', safe_filename(dirname))
-
-    if simulate:
-        log('Simulate: Would start work in in: "{}"'.format(rawdir))
-        return
-
-    log('Starting work in: "{}"'.format(rawdir))
-
-    if output_dir is not None:
-        rawdir = os.path.join(output_dir, rawdir)
-
-    if not os.path.exists(rawdir):
-        os.makedirs(os.path.join(rawdir))
-
-    # download stuff
-    print('Downloading TMD...')
-
-    baseurl = 'http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/{}'.format(title_id)
-    tmd_path = os.path.join(rawdir, 'title.tmd')
-    if not download_file(baseurl + '/tmd', tmd_path, retry_count):
-        print('ERROR: Could not download TMD...')
-        print('MAYBE YOU ARE BLOCKING CONNECTIONS TO NINTENDO? IF YOU ARE, DON\'T...! :)')
-        print('Skipping title...')
-        return
-
-    with open(os.path.join(rawdir, 'title.cert'), 'wb') as f:
-        f.write(MAGIC)
-
-    with open(tmd_path, 'rb') as f:
-        tmd = f.read()
-
-    title_version = tmd[TK + 0x9C:TK + 0x9E]
-
-    # get ticket from keysite, from cdn if game update, or generate ticket
-    if typecheck == '000e':
-        print('\nThis is an update, so we are getting the legit ticket straight from Nintendo.')
-        if not download_file(baseurl + '/cetk', os.path.join(rawdir, 'title.tik'), retry_count):
-            print('ERROR: Could not download ticket from {}'.format(baseurl + '/cetk'))
-            print('Skipping title...')
-            return
-    elif onlinetickets:
-        keysite = get_keysite()
-        tikurl = 'https://{}/ticket/{}.tik'.format(keysite, title_id)
-        if not download_file(tikurl, os.path.join(rawdir, 'title.tik'), retry_count):
-            print('ERROR: Could not download ticket from {}'.format(keysite))
-            print('Skipping title...')
-            return
-    else:
-        make_ticket(title_id, title_key, title_version, os.path.join(rawdir, 'title.tik'), patch_demo, patch_dlc)
-
-    if tickets_only:
-        print('Ticket, TMD, and CERT completed. Not downloading contents.')
-        return
+class _process_title_id(object):
+    def __init__(self):
+        self.run = True
+        self.logger = None
+        self.title_id = ""
+        self.title_key = ""
+        self.name = None
+        self.region = None
+        self.output_dir = None
+        self.retry_count = 3
+        self.onlinetickets=False
+        self.patch_demo=False
+        self.patch_dlc=False
+        self.simulate=False
+        self.tickets_only=False
 
 
-    print('Downloading Contents...')
-    content_count = int(binascii.hexlify(tmd[TK + 0x9E:TK + 0xA0]), 16)
+    def setup(self,title_id, title_key, name=None, region=None, output_dir=None, retry_count=3, onlinetickets=False, patch_demo=False,patch_dlc=False, simulate=False, tickets_only=False):
+        self.title_id = title_id
+        self.title_key = title_key
+        self.name = name
+        self.region = region
+        self.output_dir = output_dir
+        self.retry_count = retry_count
+        self.onlinetickets=onlinetickets
+        self.patch_demo=patch_demo
+        self.patch_dlc=patch_dlc
+        self.simulate=simulate
+        self.tickets_only=tickets_only
+                       
+    def setLogger(self,logger):
+        self.logger = logger
     
-    total_size = 0
-    for i in range(content_count):
-        c_offs = 0xB04 + (0x30 * i)
-        total_size += int(binascii.hexlify(tmd[c_offs + 0x08:c_offs + 0x10]), 16)
-    print('Total size is {}\n'.format(bytes2human(total_size)))
-
-    for i in range(content_count):
-        c_offs = 0xB04 + (0x30 * i)
-        c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
-        c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
-        expected_size = int(binascii.hexlify(tmd[c_offs + 0x08:c_offs + 0x10]), 16)
-        print('Downloading {} of {}.'.format(i + 1, content_count))
-        outfname = os.path.join(rawdir, c_id + '.app')
-        outfnameh3 = os.path.join(rawdir, c_id + '.h3')
-
-        if not download_file('{}/{}'.format(baseurl, c_id), outfname, retry_count, expected_size=expected_size):
-            print('ERROR: Could not download content file... Skipping title')
-            return
-        if not download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, retry_count, ignore_404=True):
-            print('ERROR: Could not download h3 file... Skipping title')
-            return
-
-    log('\nTitle download complete in "{}"\n'.format(dirname))
-
-
-def main(titles=None, keys=None, onlinekeys=False, onlinetickets=False, download_regions=False, output_dir=None,
-         retry_count=3, patch_demo=True, patch_dlc=True, simulate=False, tickets_only=False):
-    print('*******\nFunKiiU {} by cearp and the cerea1killer\n*******\n'.format(__VERSION__))
-    titlekeys_data = []
-
-    if download_regions is None:
-        print('You need to enter a region code after \'-region\', like \'-region USA\' or \'-region JPN EUR\'')
-        sys.exit(0)     
-    if download_regions and (titles or keys):
-        print('If using \'-region\', don\'t give Title IDs or keys, it gets all titles from the keysite')
-        sys.exit(0)
-    if keys and (len(keys)!=len(titles)):
-        print('Number of keys and Title IDs do not match up')
-        sys.exit(0)
-    if titles and (not keys and not onlinekeys and not onlinetickets):
-        print('You also need to provide \'-keys\' or use \'-onlinekeys\' or \'-onlinetickets\'')
-        sys.exit(0)
-
-
-    if download_regions or onlinekeys or onlinetickets:
-        keysite = get_keysite()
-
-        print(u'Downloading/updating data from {0}'.format(keysite))
-
-        if not download_file('https://{0}/json'.format(keysite), 'titlekeys.json', retry_count):
-            print('ERROR: Could not download data file... Exiting.\n')
-            sys.exit(1)
-
-        print('Downloaded data OK!')
-
-        with open('titlekeys.json') as data_file:
-            titlekeys_data = json.load(data_file)
-
-    for title_id in titles:
-        title_id = title_id.lower()
-        if not check_title_id(title_id):
-            print('The Title ID(s) must be 16 hexadecimal characters long')
-            print('{} - is not ok.'.format(title_id))
-            sys.exit(0)
-        title_key = None
-        name = None
-        region = None
-
-        #it would be best to try and get name and region if it exists in the json too, for the update
-        if (title_id[4:8] == '000e'):
-            process_title_id(title_id, title_key, name, region, output_dir, retry_count, onlinetickets, patch_demo, patch_dlc, simulate, tickets_only)
+    def log(self,msg):
+        if self.logger != None:
+            self.logger(msg)
         else:
-            if keys:
-                title_key = keys.pop()
-                if not check_title_key(title_key):
-                    print('The key(s) must be 32 hexadecimal characters long')
-                    print('{} - is not ok.'.format(title_id))
-                    sys.exit(0)
-            elif onlinekeys or onlinetickets:
-                title_data = next((t for t in titlekeys_data if t['titleID'] == title_id.lower()), None)
+            print(msg)
 
-                if not title_data:
-                    print("ERROR: Could not find data on {} for {}, skipping".format(keysite, title_id))
-                    continue
-                elif onlinetickets:
-                    if title_data['ticket'] == '0':
-                        print('ERROR: Ticket not available on {} for {}'.format(keysite,title_id))
-                        continue
+    def start(self):
+        if self.name:
+            dirname = '{} - {} - {}'.format(self.title_id, self.region, self.name)
+        else:
+            dirname = self.title_id
 
-                elif onlinekeys:
-                    title_key = title_data['titleKey']
+        typecheck = self.title_id[4:8]
+        if typecheck == '000c':
+            dirname = dirname + ' - DLC'
+        elif typecheck == '000e':
+            dirname = dirname + ' - Update'
 
-                name = title_data.get('name', None)
-                region = title_data.get('region', None)
+        rawdir = os.path.join('install', safe_filename(dirname))
 
-            if not (title_key or onlinetickets):
-                print('ERROR: Could not find title or ticket for {}'.format(title_id))
-                continue
+        if self.simulate:
+            self.log('Simulate: Would start work in in: "{}"'.format(rawdir))
+            return
 
-            process_title_id(title_id, title_key, name, region, output_dir, retry_count, onlinetickets, patch_demo, patch_dlc, simulate, tickets_only)
+        self.log('Starting work in: "{}"'.format(rawdir))
 
-    if download_regions:
-        for title_data in titlekeys_data:
-            title_id = title_data['titleID']
-            title_key = title_data.get('titleKey', None)
-            name = title_data.get('name', None)
-            region = title_data.get('region', None)
-            typecheck = title_id[4:8]
- 
-            if not region or (region not in download_regions):
-                continue
-            #only get games+dlcs+updates
-            if typecheck not in ('0000', '000c', '000e'):
-                continue
-            if onlinetickets and (not title_data['ticket']):
-                continue
-            elif onlinekeys and (not title_data['titleKey']):
-                continue
+        if self.output_dir is not None:
+            rawdir = os.path.join(self.output_dir, rawdir)
 
-            process_title_id(title_id, title_key, name, region, output_dir, retry_count, onlinetickets, patch_demo, patch_dlc, simulate, tickets_only)
+        if not os.path.exists(rawdir):
+            os.makedirs(os.path.join(rawdir))
+
+        # download stuff
+        self.log('Downloading TMD...')
+
+        baseurl = 'http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/{}'.format(
+            self.title_id)
+        tmd_path = os.path.join(rawdir, 'title.tmd')
+        if not download_file(baseurl + '/tmd', tmd_path, self.retry_count):
+            self.log('ERROR: Could not download TMD...')
+            self.log('MAYBE YOU ARE BLOCKING CONNECTIONS TO NINTENDO? IF YOU ARE, DON\'T...! :)')
+            self.log('Skipping title...')
+            return
+
+        with open(os.path.join(rawdir, 'title.cert'), 'wb') as f:
+            f.write(MAGIC)
+
+        with open(tmd_path, 'rb') as f:
+            tmd = f.read()
+
+        title_version = tmd[TK + 0x9C:TK + 0x9E]
+
+        # get ticket from keysite, from cdn if game update, or generate ticket
+        if typecheck == '000e':
+            print('\nThis is an update, so we are getting the legit ticket straight from Nintendo.')
+            if not download_file(baseurl + '/cetk', os.path.join(rawdir, 'title.tik'), self.retry_count):
+                self.log('ERROR: Could not download ticket from {}'.format(
+                    baseurl + '/cetk'))
+                self.log('Skipping title...')
+                return
+        elif self.onlinetickets:
+            keysite = get_keysite()
+            tikurl = 'https://{}/ticket/{}.tik'.format(keysite, self.title_id)
+            if not download_file(tikurl, os.path.join(rawdir, 'title.tik'), self.retry_count):
+                self.log('ERROR: Could not download ticket from {}'.format(keysite))
+                self.log('Skipping title...')
+                return
+        else:
+            make_ticket(self.title_id, self.title_key, title_version, os.path.join(
+                rawdir, 'title.tik'), self.patch_demo, self.patch_dlc)
+
+        if self.tickets_only:
+            self.log('Ticket, TMD, and CERT completed. Not downloading contents.')
+            return
+
+        self.log('Downloading Contents...')
+        content_count = int(binascii.hexlify(tmd[TK + 0x9E:TK + 0xA0]), 16)
+
+        total_size = 0
+        for i in range(content_count):
+            c_offs = 0xB04 + (0x30 * i)
+            total_size += int(binascii.hexlify(
+                tmd[c_offs + 0x08:c_offs + 0x10]), 16)
+        self.log('Total size is {}\n'.format(bytes2human(total_size)))
+
+        for i in range(content_count):
+            if self.run:
+                c_offs = 0xB04 + (0x30 * i)
+                c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
+                c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
+                expected_size = int(binascii.hexlify(
+                    tmd[c_offs + 0x08:c_offs + 0x10]), 16)
+                self.log('Downloading {} of {} for {} .'.format(i + 1, content_count,dirname))
+                outfname = os.path.join(rawdir, c_id + '.app')
+                outfnameh3 = os.path.join(rawdir, c_id + '.h3')
+
+                if not download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
+                    self.log('ERROR: Could not download content file... Skipping title')
+                    return
+                if not download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
+                    self.log('ERROR: Could not download h3 file... Skipping title')
+                    return
+
+        self.log('Title download complete in "{}"\n'.format(dirname))
 
 
 def log(output):
@@ -430,17 +359,3 @@ def log(output):
         print(output.encode(sys.stdout.encoding, errors='replace'))
     else:
         print(output.encode("utf-8", errors='replace'))
-
-if __name__ == '__main__':
-    arguments = parser.parse_args()
-    main(titles=arguments.titles,
-         keys=arguments.keys,
-         onlinekeys=arguments.onlinekeys,
-         onlinetickets=arguments.onlinetickets,
-         download_regions=arguments.download_regions,
-         output_dir=arguments.output_dir,
-         retry_count=arguments.retry_count,
-         patch_demo=arguments.patch_demo,
-         patch_dlc=arguments.patch_dlc,
-         simulate=arguments.simulate,
-         tickets_only=arguments.tickets_only)

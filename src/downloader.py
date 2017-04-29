@@ -1,5 +1,5 @@
 try:
-    import FunKiiU as fnk
+    import FunKiiUmod as fnk
 except Exception:
     pass
 
@@ -11,7 +11,7 @@ import time
 from logger import log
 
 download_list = []
-downloading = 0
+downloading = []
 
 def download_games():
     global downloading
@@ -20,9 +20,11 @@ def download_games():
         time.sleep(1)
         if len(download_list) > 0:
             game = download_list[-1]
-            if downloading < settings.maxDownloads:
-                downloading += 1
-                thread.start_new_thread(download_game, (game,))
+            if len(downloading) < settings.maxDownloads:
+                download = threaded_download()
+                downloading.append(download)
+                download.setGame(game)
+                thread.start_new_thread(download.start,())
                 download_list.remove(game)
 
 
@@ -54,7 +56,7 @@ class threaded_download(threading.Thread):
         self.game.status = "Canceled"
         self.game.downloadcallback()
         log("canceled download:" + self.game.listname)
-        downloading.remove(self)
+        downloading.remove(self.game)
 
     def stopped(self):
         return self._stop.isSet()
@@ -65,8 +67,10 @@ class threaded_download(threading.Thread):
         self.game.status = "Downloading"
         self.game.downloadcallback()
         try:
-            fnk.process_title_id(self.game.titleid, self.game.titlekey, self.game.name, self.game.region, settings.downloadDir, settings.retry,
-                                 self.game.ticket, settings.patchDEMO, settings.patchDLC, False, False)
+            process = fnk._process_title_id()
+            process.setup(self.game.titleid, self.game.titlekey, self.game.name, self.game.region, settings.downloadDir, settings.retry,self.game.ticket, settings.patchDEMO, settings.patchDLC, False, False)
+            process.setLogger(log)
+            process.start()
             self.game.status = "Complete"
             self.game.downloadcallback()
             log("done downloading:" + self.game.listname)
@@ -76,6 +80,7 @@ class threaded_download(threading.Thread):
             self.game.downloadcallback()
             downloading.remove(self)
             log("download failed:" + self.game.listname)
+            print(repr(e))
 
 def download_game(game):
     global downloading

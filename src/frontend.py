@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+import sys
+
+reload(sys)
+sys.setdefaultencoding("utf8")
+
 from util import *
 from Tkinter import *
 from ttk import *
@@ -12,7 +17,7 @@ import json
 import os
 import thread
 import xml.etree.ElementTree
-import FunKiiU as fnk
+import FunKiiUmod as fnk
 
 gamelist_array = []
 download_list = []
@@ -156,7 +161,7 @@ def download_games():
 
 def download_funkiiu():
     try:
-        urllib.urlretrieve(funkiiu_url, "FunKiiU.py")
+        urllib.urlretrieve(funkiiu_url, "FunKiiUmod.py")
         log("FunKiiU successfully downloaded.")
     except Exception as error:
         log(error)
@@ -506,10 +511,14 @@ about_tab.rowconfigure(0,weight=1)
 about_tab.columnconfigure(0,weight=1)
 aboutbox= Text(about_tab)
 aboutbox.grid(row=0, column=0, sticky="nsew")
-with open("about.txt") as about:
-    for line in about:
-        aboutbox.insert(END,line)
-aboutbox.config(state="disabled")
+try:
+    with open("about.txt") as about:
+        for line in about:
+            aboutbox.insert(END,line)
+    aboutbox.config(state="disabled")
+except Exception as e:
+    log("about.txt not found")
+    aboutbox.config(state="disabled")
 
 
 def handler():
@@ -602,7 +611,7 @@ def initialize_funkiiu_config():
 
 def update_log_tab():
     while 1:
-        time.sleep(1)
+        time.sleep(2)
         try:
             if len(logs) > 0:
                 loglist = get_logs()

@@ -6,23 +6,17 @@ from logger import *
 import binascii
 import os
 import zipfile
+import FunKiiUmod as fnk
 
-funkiiu_url = "https://raw.githubusercontent.com/llakssz/FunKiiU/master/FunKiiU.py"
+funkiiu_url = "https://raw.githubusercontent.com/llakssz/FunKiiU/master/FunKiiUmod.py"
 wiiutdb_url = "http://www.gametdb.com/wiiutdb.zip"
 
 def download_funkiiu():
     try:
-        urllib.urlretrieve(funkiiu_url, "FunKiiU.py")
+        urllib.urlretrieve(funkiiu_url, "FunKiiUmod.py")
         log("FunKiiU successfully downloaded.")
     except Exception as error:
         log(error)
-
-
-if not os.path.isfile("FunKiiU.py"):
-    download_funkiiu()
-
-import FunKiiU as fnk
-
 
 def unpack_zip(zip_name):
     try:
@@ -32,7 +26,6 @@ def unpack_zip(zip_name):
         os.remove(zip_name)
     except Exception as e:
         log('Error:' + e)
-
 
 class Game(object):
     def __init__(self):
