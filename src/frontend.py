@@ -1,9 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
-import sys
-reload(sys)
-sys.setdefaultencoding("utf8")
 from util import *
 from Tkinter import *
 from ttk import *
@@ -17,12 +13,6 @@ import os
 import thread
 import xml.etree.ElementTree
 import FunKiiU as fnk
-
-
-
-
-
-
 
 gamelist_array = []
 download_list = []

@@ -55,6 +55,7 @@ def download_titlekeys_json():
         log("titlekeys.json successfully downloaded.")
     except Exception as error:
         log(error)
+
 def download_titlekeys_rss():
     log("Attempting to download titlekey rss...")
     try:
