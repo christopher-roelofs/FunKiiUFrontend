@@ -426,8 +426,10 @@ def main(titles=None, keys=None, onlinekeys=False, onlinetickets=False, download
 
 
 def log(output):
-    print(output.encode('utf-8', errors='replace'))
-
+    if sys.stdout.encoding != None:
+        print(output.encode(sys.stdout.encoding, errors='replace'))
+    else:
+        print(output.encode("utf-8", errors='replace'))
 
 if __name__ == '__main__':
     arguments = parser.parse_args()
