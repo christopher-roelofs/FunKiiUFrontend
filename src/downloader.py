@@ -22,8 +22,8 @@ def download_games():
             game = download_list[-1]
             if len(downloading) < settings.maxDownloads:
                 download = threaded_download()
-                downloading.append(download)
                 download.setGame(game)
+                downloading.append(download)
                 thread.start_new_thread(download.start,())
                 download_list.remove(game)
 
@@ -39,11 +39,10 @@ def cancel_download(game):
 
 
 
-class threaded_download(threading.Thread):
+class threaded_download(object):
     def __init__(self):
-        super(threaded_download, self).__init__()
-        self._stop = threading.Event()
         self.game = ""
+        self.fnkdownload = ""
 
     def setGame(self,game):
         self.game = game
@@ -52,14 +51,15 @@ class threaded_download(threading.Thread):
         return self.game
 
     def stop(self):
-        self._stop.set()
+        self.fnkdownload.stop()
         self.game.status = "Canceled"
         self.game.downloadcallback()
         log("canceled download:" + self.game.listname)
         downloading.remove(self.game)
 
-    def stopped(self):
-        return self._stop.isSet()
+    def percentcallback(self):
+        self.game.status = "Downloading: " + self.fnkdownload.percent
+        self.game.downloadcallback()
 
     def start(self):
         global downloading
@@ -67,9 +67,11 @@ class threaded_download(threading.Thread):
         self.game.status = "Downloading"
         self.game.downloadcallback()
         try:
-            process = fnk._process_title_id()
+            process = fnk.process_title_id()
             process.setup(self.game.titleid, self.game.titlekey, self.game.name, self.game.region, settings.downloadDir, settings.retry,self.game.ticket, settings.patchDEMO, settings.patchDLC, False, False)
             process.setLogger(log)
+            process.setPercentCallback(self.percentcallback)
+            self.fnkdownload = process
             process.start()
             self.game.status = "Complete"
             self.game.downloadcallback()
@@ -81,25 +83,6 @@ class threaded_download(threading.Thread):
             downloading.remove(self)
             log("download failed:" + self.game.listname)
             print(repr(e))
-
-def download_game(game):
-    global downloading
-    log("downloading:" + game.listname)
-    game.status = "Downloading"
-    game.downloadcallback()
-    try:
-        fnk.process_title_id(game.titleid, game.titlekey, game.name, game.region, os.curdir, 3, game.ticket,settings.patchDEMO, settings.patchDLC, False, False)
-        game.status = "Complete"
-        game.downloadcallback()
-        log("done downloading:" + game.listname)
-        downloading -= 1
-    except Exception as e:
-        game.status = "Failed"
-        game.downloadcallback()
-        downloading -= 1
-        log("download failed:" + game.listname)
-
-
 try:
     thread.start_new_thread(download_games,())
 except:

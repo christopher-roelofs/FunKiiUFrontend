@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import zlib
+from math import floor
 
 try:
     from urllib.request import urlopen
@@ -215,7 +216,7 @@ def safe_filename(filename):
     return re.sub(r'_+', '_', ''.join(c if (c.isalnum() or c in keep) else '_' for c in filename)).strip('_ ')
 
 
-class _process_title_id(object):
+class process_title_id(object):
     def __init__(self):
         self.run = True
         self.logger = None
@@ -230,6 +231,8 @@ class _process_title_id(object):
         self.patch_dlc=False
         self.simulate=False
         self.tickets_only=False
+        self.percent = ""
+        self.percentcallback = ""
 
 
     def setup(self,title_id, title_key, name=None, region=None, output_dir=None, retry_count=3, onlinetickets=False, patch_demo=False,patch_dlc=False, simulate=False, tickets_only=False):
@@ -248,11 +251,16 @@ class _process_title_id(object):
     def setLogger(self,logger):
         self.logger = logger
     
+    def setPercentCallback(self,callback):
+        self.percentcallback = callback
+    
     def log(self,msg):
         if self.logger != None:
             self.logger(msg)
         else:
             print(msg)
+    def stop(self):
+        self.run = False
 
     def start(self):
         if self.name:
@@ -340,7 +348,10 @@ class _process_title_id(object):
                 c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
                 expected_size = int(binascii.hexlify(
                     tmd[c_offs + 0x08:c_offs + 0x10]), 16)
-                self.log('Downloading {} of {} for {} .'.format(i + 1, content_count,dirname))
+                self.log('Downloading {} of {} for {}.'.format(i + 1, content_count,dirname))
+                self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
+                if self.percentcallback != "":
+                    self.percentcallback()
                 outfname = os.path.join(rawdir, c_id + '.app')
                 outfnameh3 = os.path.join(rawdir, c_id + '.h3')
 
