@@ -351,9 +351,11 @@ downloaddir_input = Entry(settings_tab, width=20)
 downloaddir_input.grid(row=3, column=1, sticky=EW,columnspan=2)
 
 def set_download_rirectory():
-    settings.downloadDir = tkFileDialog.askdirectory()
-    downloaddir_input.delete(0,END)
-    downloaddir_input.insert(0,settings.downloadDir)
+    dir = tkFileDialog.askdirectory()
+    if dir != ():
+        settings.downloadDir = dir
+        downloaddir_input.delete(0,END)
+        downloaddir_input.insert(0,settings.downloadDir)
 
 browse_btn = Button(settings_tab, text="Browse", command=set_download_rirectory)
 browse_btn.grid(row=3, column=3, sticky=W)
@@ -375,7 +377,7 @@ max_download_drop.bind("<<ComboboxSelected>>", update_max_downloads)
 max_download_drop.grid(row=5, column=1, sticky=W)
 
 ticketonly_chk = IntVar()
-ticketonly_checkbox = Checkbutton(settings_tab,text = "Show games with legitimate tickets only",command = toggle_ticket_only,variable=ticketonly_chk)
+ticketonly_checkbox = Checkbutton(settings_tab,text = "Only show games with tickets",command = toggle_ticket_only,variable=ticketonly_chk)
 ticketonly_checkbox.grid(row=6, column=0, sticky=W)
 if settings.ticketOnly:
     ticketonly_chk.set(1)

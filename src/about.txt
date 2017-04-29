@@ -10,15 +10,23 @@ https://github.com/dojafoja/FunKii-UI
 
 Changelog
 
+4-29-17 v1.3
+Fork FunKiiU into FunKiiUmod.
+Fix more unicode issues.
+Show percent downloaded.
+Improve wording of settings descriptions.
+Handle cancel button for setting download directory.
+
+
 4-24-17 v1.2.1
-change startup threads a bit
-update patch demo/dlc descriptions
+Change startup threads a bit.
+Update patch demo/dlc descriptions.
 
 4-19-17 v1.2
-inlcude modified FunKiiU until I refactor it later
+Inlcude modified FunKiiU until I refactor it later.
 
 4-19-17 v1.1 
-fix imports for FunKiiU
+Fix imports for FunKiiU.
 
 4-19-17 v1.0 
-initial release
+Initial release.
