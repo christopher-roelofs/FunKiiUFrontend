@@ -349,9 +349,6 @@ class process_title_id(object):
                 expected_size = int(binascii.hexlify(
                     tmd[c_offs + 0x08:c_offs + 0x10]), 16)
                 self.log('Downloading {} of {} for {}.'.format(i + 1, content_count,dirname))
-                self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
-                if self.percentcallback != "":
-                    self.percentcallback()
                 outfname = os.path.join(rawdir, c_id + '.app')
                 outfnameh3 = os.path.join(rawdir, c_id + '.h3')
 
@@ -361,6 +358,10 @@ class process_title_id(object):
                 if not download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
                     self.log('ERROR: Could not download h3 file... Skipping title')
                     return
+
+                self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
+                if self.percentcallback != "":
+                    self.percentcallback()
 
         self.log('Title download complete in "{}"\n'.format(dirname))
 
