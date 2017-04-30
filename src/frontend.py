@@ -250,8 +250,9 @@ yscroll.grid(row=0, column=1, sticky='ns')
 downloadlist.configure(yscrollcommand=yscroll.set)
 
 def download_select(e):
-    global current_selected_download
-    current_selected_download = " - ".join(str(downloadlist.get(downloadlist.curselection())).split(" - ")[0:3]) 
+    if len(downloadlist.curselection()) > 0:
+        global current_selected_download
+        current_selected_download = " - ".join(str(downloadlist.get(downloadlist.curselection())).split(" - ")[0:3]) 
 
 downloadlist.bind('<ButtonRelease-1>', download_select)
 
