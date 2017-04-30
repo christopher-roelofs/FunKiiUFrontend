@@ -40,6 +40,7 @@ class Game(object):
         self.description = ""
         self.size = ""
         self.status = ""
+        self.canceled = False
         self.downloadcallback = ""
         self.gameid = ""
 

@@ -251,22 +251,22 @@ downloadlist.configure(yscrollcommand=yscroll.set)
 
 def download_select(e):
     global current_selected_download
-    current_selected_download = str(downloadlist.get(downloadlist.curselection()))
-    print current_selected_download
+    current_selected_download = " - ".join(str(downloadlist.get(downloadlist.curselection())).split(" - ")[0:3]) 
 
 downloadlist.bind('<ButtonRelease-1>', download_select)
 
 def cancel_selected():
     downloader.cancel_download(current_selected_download)
+    #downloadlist.delete((downloadlist.curselection()[0]))
 
 rmv_btn = Button(downloads_tab, text="Cancel Selected",command=cancel_selected)
-#rmv_btn.grid(row=1, column=0,sticky=NE)
+rmv_btn.grid(row=1, column=0,sticky=NE)
 
 def clear_complete():
     downloadlist.delete(0, END)
     templist = list(download_list)
     for game in templist:
-        if game.status != "Complete":
+        if game.status != "Complete" and game.status != "Canceled" and game.status != "Failed":
             downloadlist.insert(0, game.listname + " - " + game.status)
         else:
             download_list.remove(game)

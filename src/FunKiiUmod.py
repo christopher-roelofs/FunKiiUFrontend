@@ -262,6 +262,58 @@ class process_title_id(object):
     def stop(self):
         self.run = False
 
+    def download_file(self,url, outfname, retry_count=3, ignore_404=False, expected_size=None, chunk_size=0x4096):
+        for _ in retry(retry_count):
+            try:
+                infile = urlopen(url)
+                # start of modified code
+                if os.path.isfile(outfname):
+                    statinfo = os.stat(outfname)
+                    diskFilesize = statinfo.st_size
+                else:
+                    diskFilesize = 0
+                try:
+                    self.log('-Downloading {}.\n-File size is {}.\n-File in disk is {}.'.format(
+                        outfname, expected_size, diskFilesize))
+                except UnicodeEncodeError:
+                    self.log('-Downloading {}.\n-File size is {}.\n-File in disk is {}.'.format(
+                        repr(outfname), expected_size, diskFilesize))
+
+                # if not (expected_size is None):
+                if expected_size != diskFilesize:
+                    with open(outfname, 'wb') as outfile:
+                        downloaded_size = 0
+                        while True:
+                            buf = infile.read(chunk_size)
+                            if not buf:
+                                break
+                            downloaded_size += len(buf)
+                            if expected_size and len(buf) == chunk_size:
+                                print(' Downloaded {}'.format(progress_bar(
+                                    downloaded_size, expected_size)), end='\r')
+                            outfile.write(buf)
+                else:
+                    self.log('-File skipped.')
+                    downloaded_size = statinfo.st_size
+                # end of modified code
+
+                if expected_size is not None:
+                    if int(os.path.getsize(outfname)) != expected_size:
+                        self.log('Content download not correct size\n')
+                        continue
+                    else:
+                        self.log('Download complete: {}\n'.format(
+                            bytes2human(downloaded_size)) + ' ' * 40)
+            except HTTPError as e:
+                if e.code == 404 and ignore_404:
+                    # We are ignoring this because its a 404 error, not a failure
+                    return True
+            except URLError:
+                self.log('Could not download file...\n')
+            else:
+                return True
+        return False
+
     def start(self):
         if self.name:
             dirname = '{} - {} - {}'.format(self.title_id, self.region, self.name)
@@ -342,7 +394,9 @@ class process_title_id(object):
         self.log('Total size is {}\n'.format(bytes2human(total_size)))
 
         for i in range(content_count):
-            if self.run:
+            if not self.run:
+                return
+            else:
                 c_offs = 0xB04 + (0x30 * i)
                 c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
                 c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
@@ -352,10 +406,10 @@ class process_title_id(object):
                 outfname = os.path.join(rawdir, c_id + '.app')
                 outfnameh3 = os.path.join(rawdir, c_id + '.h3')
 
-                if not download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
+                if not self.download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
                     self.log('ERROR: Could not download content file... Skipping title')
                     return
-                if not download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
+                if not self.download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
                     self.log('ERROR: Could not download h3 file... Skipping title')
                     return
 

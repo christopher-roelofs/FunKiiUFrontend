@@ -31,11 +31,10 @@ def download_games():
 def add_game(game):
     download_list.append(game)
 
-def cancel_download(game):
+def cancel_download(listname):
     for download in downloading:
-        if game == download.getGame().listname + " - " + download.getGame().status:
-            #download.stop()
-            pass
+        if listname == download.getGame().listname:
+            download.stop()
 
 
 
@@ -52,10 +51,7 @@ class threaded_download(object):
 
     def stop(self):
         self.fnkdownload.stop()
-        self.game.status = "Canceled"
-        self.game.downloadcallback()
-        log("canceled download:" + self.game.listname)
-        downloading.remove(self.game)
+        self.game.canceled = True
 
     def percentcallback(self):
         self.game.status = "Downloading: " + self.fnkdownload.percent
@@ -73,14 +69,21 @@ class threaded_download(object):
             process.setPercentCallback(self.percentcallback)
             self.fnkdownload = process
             process.start()
-            self.game.status = "Complete"
-            self.game.downloadcallback()
-            log("done downloading:" + self.game.listname)
             downloading.remove(self)
+            if self.game.canceled:
+                self.game.status = "Canceled"
+                self.game.downloadcallback()
+                log("canceled download:" + self.game.listname)
+            else:
+                self.game.status = "Complete"
+                self.game.downloadcallback()
+                log("done downloading:" + self.game.listname)
+                
         except Exception as e:
             self.game.status = "Failed"
             self.game.downloadcallback()
-            downloading.remove(self)
+            if self in downloading:
+                downloading.remove(self)
             log("download failed:" + self.game.listname)
             print(repr(e))
 try:
