@@ -11,7 +11,7 @@ https://github.com/dojafoja/FunKii-UI
 Changelog
 
 4-30-17 v1.4
-Preliminary wiiutdb support. Need better was to link 4-6 char id from wiiutdb to titlekeys.json.
+Preliminary wiiutdb support. Need better way to link 4-6 char id from wiiutdb to titlekeys.json.
 Add ability to cancel downloads.
 Add download_file to process_title_id class in FunKiiUmod and hook to callback log.
 
