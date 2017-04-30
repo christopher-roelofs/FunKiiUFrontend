@@ -7,6 +7,7 @@ import binascii
 import os
 import zipfile
 import FunKiiUmod as fnk
+import xml.etree.ElementTree
 
 funkiiu_url = "https://raw.githubusercontent.com/llakssz/FunKiiU/master/FunKiiUmod.py"
 wiiutdb_url = "http://www.gametdb.com/wiiutdb.zip"
@@ -40,6 +41,7 @@ class Game(object):
         self.size = ""
         self.status = ""
         self.downloadcallback = ""
+        self.gameid = ""
 
 def download_titlekeys_json():
     log("Attempting to download titlekey json...")
@@ -63,6 +65,7 @@ def download_wiiutdb():
         urllib.urlretrieve(wiiutdb_url, "wiiutdb.zip")
         log("wiiutdb.zip successfully downloaded.")
         unpack_zip("wiiutdb.zip")
+        log("wiiutdb.xml extracted")
     except Exception as error:
         log(error)
 
@@ -96,4 +99,3 @@ def get_title_size(titleid):
             c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
             total_size += int(binascii.hexlify(tmd[c_offs + 0x08:c_offs + 0x10]), 16)
         return fnk.bytes2human(total_size)
-

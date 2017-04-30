@@ -159,16 +159,6 @@ def download_games():
             downloader.add_game(current_selected)
             refresh_download_listbox()
 
-def download_funkiiu():
-    try:
-        urllib.urlretrieve(funkiiu_url, "FunKiiUmod.py")
-        log("FunKiiU successfully downloaded.")
-    except Exception as error:
-        log(error)
-
-
-
-
 search_tab = Frame(note)
 
 search_tab.columnconfigure(0)
@@ -234,7 +224,9 @@ def search_select(e):
             infobox.insert(END, "TitleID: " + game.titleid + "\n")
             infobox.insert(END, "TitleKey: " + game.titlekey + "\n")
             infobox.insert(END, "Online Ticket: " + str(game.ticket) + "\n")
-            infobox.insert(END, "Size: " + game.size)
+            infobox.insert(END, "Size: " + game.size + "\n")
+            if game.description != "":
+                infobox.insert(END, "Description: " + game.description)
             infobox.config(state="disabled")
 
 searchlist.bind('<ButtonRelease-1>', search_select)
@@ -526,6 +518,66 @@ except Exception as e:
 def handler():
     root.destroy()
 
+def enrich_gamelist():
+    log("Attempting to enrich game data")
+    global gamelist_array
+    temp_gamelist_array = []
+
+    if not os.path.isfile('titlekeys.json'):
+        download_titlekeys_json()
+    with open('titlekeys.json') as jsonfile:
+        parsed_json = json.load(jsonfile)
+        for record in parsed_json:
+            gameupdate = Game()
+            if record["name"] is not None:
+                gameupdate.name = (record["name"]).replace("\n", " ")
+            if record["titleKey"] is not None:
+                gameupdate.titlekey = record["titleKey"]
+            if record["region"] is not None:
+                gameupdate.region = record["region"]
+            if record["titleID"] is not None:
+                gameupdate.titleid = record["titleID"]
+                gameupdate.type = decode_titleid(record["titleID"])
+            gameupdate.listname = gameupdate.name + " - " + gameupdate.type + " - " + gameupdate.region
+            if record["ticket"] == "1":
+                gameupdate.ticket = True
+            else:
+                gameupdate.ticket = False
+            if gameupdate.name != "":
+                temp_gamelist_array.append(gameupdate)
+
+    
+    if os.path.isfile("wiiutitles.json"):
+        with open('wiiutitles.json') as jsonfile:
+            parsed_json = json.load(jsonfile)
+            for record in parsed_json:
+                titleid = record["titleid"].replace("-","")
+                gameid = record["gameid"]
+                if gameid != "":
+                    for game in temp_gamelist_array:
+                        if titleid == game.titleid:
+                            game.gameid = gameid.split("-")[2]
+
+    if not os.path.isfile("wiiutdb.xml"):
+        download_wiiutdb()
+    e = xml.etree.ElementTree.parse('wiiutdb.xml').getroot()
+    for item in e.findall("game"):
+        for child in item:
+            if child.text != None:
+                if child.tag == "locale" and child.attrib["lang"] == "EN" and child.find("synopsis").text != None:
+                    description = child.find("synopsis").text
+                if child.tag == "id":
+                    id = child.text
+        for game in temp_gamelist_array:
+            if game.gameid != "":
+                if game.gameid in id:
+                    game.description = description
+                    game.id = id
+
+    gamelist_array = list(temp_gamelist_array)
+    gamelist_array.sort(key=lambda game: game.listname)
+    log("Game data updated with data from wiiutdb")
+
 def load_titlekeys():
     global gamelist_array
     gamelist_array = []
@@ -551,9 +603,6 @@ def load_titlekeys():
                     game.ticket = False
                 if game.name != "":
                     gamelist_array.append(game)
-                if os.path.isfile("wiiutdb.xml"):
-                    pass
-
         gamelist_array.sort(key=lambda game: game.listname)
     except IOError as e:
         log("Unable to load titlekeys")
@@ -624,9 +673,6 @@ def update_log_tab():
         except:
             pass
 
-
-
-
 note.add(search_tab, text="Search")
 note.add(downloads_tab, text="Downloads")
 note.add(settings_tab, text= "Settings")
@@ -643,7 +689,7 @@ check_tilekey_json()
 refresh_gamelist()
 initialize_funkiiu_config()
 thread.start_new_thread(update_rss,())
-
+thread.start_new_thread(enrich_gamelist,())
 
 
 if settings.titleKeyNag:
@@ -655,6 +701,8 @@ if settings.titleKeyNag:
 
 
 thread.start_new_thread(update_log_tab,())
+
+
 
 try:
     root.mainloop()
