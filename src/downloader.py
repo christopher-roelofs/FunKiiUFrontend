@@ -32,6 +32,14 @@ def add_game(game):
     download_list.append(game)
 
 def cancel_download(listname):
+    global download_list
+    templist = list(download_list)
+    for game in templist:
+        if game.listname == listname:
+            download_list.remove(game)
+            game.status = "Canceled"
+            game.downloadcallback()
+
     for download in downloading:
         if listname == download.getGame().listname:
             download.stop()

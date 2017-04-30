@@ -257,7 +257,6 @@ downloadlist.bind('<ButtonRelease-1>', download_select)
 
 def cancel_selected():
     downloader.cancel_download(current_selected_download)
-    #downloadlist.delete((downloadlist.curselection()[0]))
 
 rmv_btn = Button(downloads_tab, text="Cancel Selected",command=cancel_selected)
 rmv_btn.grid(row=1, column=0,sticky=NE)
