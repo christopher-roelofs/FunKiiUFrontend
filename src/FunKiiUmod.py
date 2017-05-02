@@ -400,30 +400,27 @@ class process_title_id(object):
         self.log('Total size is {}\n'.format(bytes2human(total_size)))
 
         for i in range(content_count):
-            if not self.run:
+            c_offs = 0xB04 + (0x30 * i)
+            c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
+            c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
+            expected_size = int(binascii.hexlify(
+                tmd[c_offs + 0x08:c_offs + 0x10]), 16)
+            self.log('Downloading {} of {} for {}.'.format(i + 1, content_count,dirname))
+            outfname = os.path.join(rawdir, c_id + '.app')
+            outfnameh3 = os.path.join(rawdir, c_id + '.h3')
+
+            if not self.download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
+                self.log('ERROR: Could not download content file... Skipping title')
+                shutil.rmtree(rawdir, ignore_errors=True)
                 return
-            else:
-                c_offs = 0xB04 + (0x30 * i)
-                c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
-                c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
-                expected_size = int(binascii.hexlify(
-                    tmd[c_offs + 0x08:c_offs + 0x10]), 16)
-                self.log('Downloading {} of {} for {}.'.format(i + 1, content_count,dirname))
-                outfname = os.path.join(rawdir, c_id + '.app')
-                outfnameh3 = os.path.join(rawdir, c_id + '.h3')
+            if not self.download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
+                self.log('ERROR: Could not download h3 file... Skipping title')
+                shutil.rmtree(rawdir, ignore_errors=True)
+                return
 
-                if not self.download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
-                    self.log('ERROR: Could not download content file... Skipping title')
-                    shutil.rmtree(rawdir, ignore_errors=True)
-                    return
-                if not self.download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
-                    self.log('ERROR: Could not download h3 file... Skipping title')
-                    shutil.rmtree(rawdir, ignore_errors=True)
-                    return
-
-                self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
-                if self.percentcallback != "":
-                    self.percentcallback()
+            self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
+            if self.percentcallback != "":
+                self.percentcallback()
 
         self.log('Title download complete in "{}"\n'.format(dirname))
 
