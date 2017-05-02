@@ -20,6 +20,7 @@ import re
 import sys
 import zlib
 from math import floor
+import shutil
 
 try:
     from urllib.request import urlopen
@@ -284,6 +285,8 @@ class process_title_id(object):
                     with open(outfname, 'wb') as outfile:
                         downloaded_size = 0
                         while True:
+                            if not self.run:
+                                return False
                             buf = infile.read(chunk_size)
                             if not buf:
                                 break
@@ -350,6 +353,8 @@ class process_title_id(object):
             self.log('ERROR: Could not download TMD...')
             self.log('MAYBE YOU ARE BLOCKING CONNECTIONS TO NINTENDO? IF YOU ARE, DON\'T...! :)')
             self.log('Skipping title...')
+            if not self.run:
+                shutil.rmtree(rawdir, ignore_errors=True)
             return
 
         with open(os.path.join(rawdir, 'title.cert'), 'wb') as f:
@@ -367,6 +372,8 @@ class process_title_id(object):
                 self.log('ERROR: Could not download ticket from {}'.format(
                     baseurl + '/cetk'))
                 self.log('Skipping title...')
+                if not self.run:
+                    shutil.rmtree(rawdir, ignore_errors=True)
                 return
         elif self.onlinetickets:
             keysite = get_keysite()
@@ -374,6 +381,8 @@ class process_title_id(object):
             if not download_file(tikurl, os.path.join(rawdir, 'title.tik'), self.retry_count):
                 self.log('ERROR: Could not download ticket from {}'.format(keysite))
                 self.log('Skipping title...')
+                if not self.run:
+                    shutil.rmtree(rawdir, ignore_errors=True)
                 return
         else:
             make_ticket(self.title_id, self.title_key, title_version, os.path.join(
@@ -408,9 +417,13 @@ class process_title_id(object):
 
                 if not self.download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
                     self.log('ERROR: Could not download content file... Skipping title')
+                    if not self.run:
+                        shutil.rmtree(rawdir, ignore_errors=True)
                     return
                 if not self.download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
                     self.log('ERROR: Could not download h3 file... Skipping title')
+                    if not self.run:
+                        shutil.rmtree(rawdir, ignore_errors=True)
                     return
 
                 self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
