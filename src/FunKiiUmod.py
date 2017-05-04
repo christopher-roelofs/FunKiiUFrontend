@@ -227,43 +227,43 @@ class process_title_id(object):
         self.region = None
         self.output_dir = None
         self.retry_count = 3
-        self.onlinetickets=False
-        self.patch_demo=False
-        self.patch_dlc=False
-        self.simulate=False
-        self.tickets_only=False
+        self.onlinetickets = False
+        self.patch_demo = False
+        self.patch_dlc = False
+        self.simulate = False
+        self.tickets_only = False
         self.percent = ""
         self.percentcallback = ""
 
-
-    def setup(self,title_id, title_key, name=None, region=None, output_dir=None, retry_count=3, onlinetickets=False, patch_demo=False,patch_dlc=False, simulate=False, tickets_only=False):
+    def setup(self, title_id, title_key, name=None, region=None, output_dir=None, retry_count=3, onlinetickets=False, patch_demo=False, patch_dlc=False, simulate=False, tickets_only=False):
         self.title_id = title_id
         self.title_key = title_key
         self.name = name
         self.region = region
         self.output_dir = output_dir
         self.retry_count = retry_count
-        self.onlinetickets=onlinetickets
-        self.patch_demo=patch_demo
-        self.patch_dlc=patch_dlc
-        self.simulate=simulate
-        self.tickets_only=tickets_only
-                       
-    def setLogger(self,logger):
+        self.onlinetickets = onlinetickets
+        self.patch_demo = patch_demo
+        self.patch_dlc = patch_dlc
+        self.simulate = simulate
+        self.tickets_only = tickets_only
+
+    def setLogger(self, logger):
         self.logger = logger
-    
-    def setPercentCallback(self,callback):
+
+    def setPercentCallback(self, callback):
         self.percentcallback = callback
-    
-    def log(self,msg):
+
+    def log(self, msg):
         if self.logger != None:
             self.logger(msg)
         else:
             print(msg)
+
     def stop(self):
         self.run = False
 
-    def download_file(self,url, outfname, retry_count=3, ignore_404=False, expected_size=None, chunk_size=0x4096):
+    def download_file(self, url, outfname, retry_count=3, ignore_404=False, expected_size=None, chunk_size=0x4096):
         for _ in retry(retry_count):
             try:
                 infile = urlopen(url)
@@ -309,7 +309,8 @@ class process_title_id(object):
                             bytes2human(downloaded_size)) + ' ' * 40)
             except HTTPError as e:
                 if e.code == 404 and ignore_404:
-                    # We are ignoring this because its a 404 error, not a failure
+                    # We are ignoring this because its a 404 error, not a
+                    # failure
                     return True
             except URLError:
                 self.log('Could not download file...\n')
@@ -319,7 +320,8 @@ class process_title_id(object):
 
     def start(self):
         if self.name:
-            dirname = '{} - {} - {}'.format(self.title_id, self.region, self.name)
+            dirname = '{} - {} - {}'.format(self.title_id,
+                                            self.region, self.name)
         else:
             dirname = self.title_id
 
@@ -351,7 +353,8 @@ class process_title_id(object):
         tmd_path = os.path.join(rawdir, 'title.tmd')
         if not download_file(baseurl + '/tmd', tmd_path, self.retry_count):
             self.log('ERROR: Could not download TMD...')
-            self.log('MAYBE YOU ARE BLOCKING CONNECTIONS TO NINTENDO? IF YOU ARE, DON\'T...! :)')
+            self.log(
+                'MAYBE YOU ARE BLOCKING CONNECTIONS TO NINTENDO? IF YOU ARE, DON\'T...! :)')
             self.log('Skipping title...')
             shutil.rmtree(rawdir, ignore_errors=True)
             return
@@ -366,7 +369,8 @@ class process_title_id(object):
 
         # get ticket from keysite, from cdn if game update, or generate ticket
         if typecheck == '000e':
-            print('\nThis is an update, so we are getting the legit ticket straight from Nintendo.')
+            print(
+                '\nThis is an update, so we are getting the legit ticket straight from Nintendo.')
             if not download_file(baseurl + '/cetk', os.path.join(rawdir, 'title.tik'), self.retry_count):
                 self.log('ERROR: Could not download ticket from {}'.format(
                     baseurl + '/cetk'))
@@ -377,7 +381,8 @@ class process_title_id(object):
             keysite = get_keysite()
             tikurl = 'https://{}/ticket/{}.tik'.format(keysite, self.title_id)
             if not download_file(tikurl, os.path.join(rawdir, 'title.tik'), self.retry_count):
-                self.log('ERROR: Could not download ticket from {}'.format(keysite))
+                self.log(
+                    'ERROR: Could not download ticket from {}'.format(keysite))
                 self.log('Skipping title...')
                 shutil.rmtree(rawdir, ignore_errors=True)
                 return
@@ -405,12 +410,14 @@ class process_title_id(object):
             c_type = binascii.hexlify(tmd[c_offs + 0x06:c_offs + 0x8])
             expected_size = int(binascii.hexlify(
                 tmd[c_offs + 0x08:c_offs + 0x10]), 16)
-            self.log('Downloading {} of {} for {}.'.format(i + 1, content_count,dirname))
+            self.log('Downloading {} of {} for {}.'.format(
+                i + 1, content_count, dirname))
             outfname = os.path.join(rawdir, c_id + '.app')
             outfnameh3 = os.path.join(rawdir, c_id + '.h3')
 
             if not self.download_file('{}/{}'.format(baseurl, c_id), outfname, self.retry_count, expected_size=expected_size):
-                self.log('ERROR: Could not download content file... Skipping title')
+                self.log(
+                    'ERROR: Could not download content file... Skipping title')
                 shutil.rmtree(rawdir, ignore_errors=True)
                 return
             if not self.download_file('{}/{}.h3'.format(baseurl, c_id), outfnameh3, self.retry_count, ignore_404=True):
@@ -418,7 +425,8 @@ class process_title_id(object):
                 shutil.rmtree(rawdir, ignore_errors=True)
                 return
 
-            self.percent = str(int((float(i + 1) / float(content_count))*100)) + "%"
+            self.percent = str(
+                int((float(i + 1) / float(content_count)) * 100)) + "%"
             if self.percentcallback != "":
                 self.percentcallback()
 

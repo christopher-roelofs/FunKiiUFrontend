@@ -24,12 +24,14 @@ download_list = []
 current_selected = ""
 current_selected_download = ""
 
+
 def save_settings():
     settings.set_title_key_url(url_input.get())
     settings.save_settings()
     check_tilekey_json()
     refresh_gamelist()
-    thread.start_new_thread(update_rss,())
+    thread.start_new_thread(update_rss, ())
+
 
 def toggle_dlkeys():
     if dlKeys_chk.get() == 1:
@@ -37,11 +39,13 @@ def toggle_dlkeys():
     else:
         settings.dlKeysStartup = False
 
+
 def toggle_dlrss():
     if dlRss_chk.get() == 1:
         settings.dlRssStartup = True
     else:
         settings.dlRssStartup = False
+
 
 def toggle_ticket_only():
     if ticketonly_chk.get() == 1:
@@ -50,17 +54,20 @@ def toggle_ticket_only():
         settings.ticketOnly = False
     refresh_gamelist()
 
+
 def toggle_patch_demo():
     if patchdemo_chk.get() == 1:
         settings.patchDEMO = True
     else:
         settings.patchDEMO = False
 
+
 def toggle_patch_dlc():
     if patchdlc_chk.get() == 1:
         settings.patchDLC = True
     else:
         settings.patchDLC = False
+
 
 def toggle_show_usa():
     if showusa_chk.get() == 1:
@@ -71,6 +78,7 @@ def toggle_show_usa():
             settings.filters.remove("USA")
     refresh_gamelist()
 
+
 def toggle_show_jpn():
     if showjpn_chk.get() == 1:
         if "JPN" not in settings.filters:
@@ -79,6 +87,7 @@ def toggle_show_jpn():
         if "JPN" in settings.filters:
             settings.filters.remove("JPN")
     refresh_gamelist()
+
 
 def toggle_show_eur():
     if showeur_chk.get() == 1:
@@ -89,6 +98,7 @@ def toggle_show_eur():
             settings.filters.remove("EUR")
     refresh_gamelist()
 
+
 def toggle_show_dlc():
     if showdlc_chk.get() == 1:
         if "DLC" not in settings.filters:
@@ -97,6 +107,7 @@ def toggle_show_dlc():
         if "DLC" in settings.filters:
             settings.filters.remove("DLC")
     refresh_gamelist()
+
 
 def toggle_show_update():
     if showupdate_chk.get() == 1:
@@ -107,6 +118,7 @@ def toggle_show_update():
             settings.filters.remove("UPDATE")
     refresh_gamelist()
 
+
 def toggle_show_demo():
     if showdemo_chk.get() == 1:
         if "DEMO" not in settings.filters:
@@ -115,6 +127,7 @@ def toggle_show_demo():
         if "DEMO" in settings.filters:
             settings.filters.remove("DEMO")
     refresh_gamelist()
+
 
 def toggle_show_game():
     if showgame_chk.get() == 1:
@@ -125,11 +138,14 @@ def toggle_show_game():
             settings.filters.remove("GAME")
     refresh_gamelist()
 
+
 def update_max_downloads(e):
     settings.maxDownloads = int(max_download_drop.get())
 
+
 def update_max_retry(e):
     settings.retries = int(retry_drop.get())
+
 
 root = Tk()
 root.title("FunKiiU Frontend")
@@ -141,17 +157,20 @@ note.columnconfigure(0, weight=1)
 note.rowconfigure(0, weight=1)
 note.grid(sticky=NSEW)
 
-#search_tab stuff here
+# search_tab stuff here
+
 
 def refresh_download_listbox():
-    downloadlist.delete(0,END)
+    downloadlist.delete(0, END)
     for game in download_list:
-        downloadlist.insert(0,game.listname + " - " + game.status)
+        downloadlist.insert(0, game.listname + " - " + game.status)
+
 
 def download_games():
     if current_selected != "" and current_selected not in download_list:
         if current_selected.size == "0.00 B":
-            message.showwarning("Can't Download","The file size is 0.00 B\n can't download game")
+            message.showwarning(
+                "Can't Download", "The file size is 0.00 B\n can't download game")
         else:
             download_list.append(current_selected)
             current_selected.status = "Queued"
@@ -159,42 +178,47 @@ def download_games():
             downloader.add_game(current_selected)
             refresh_download_listbox()
 
+
 search_tab = Frame(note)
 
 search_tab.columnconfigure(0)
-search_tab.columnconfigure(1,weight=2)
+search_tab.columnconfigure(1, weight=2)
 search_tab.columnconfigure(2)
-search_tab.columnconfigure(3,weight=1)
+search_tab.columnconfigure(3, weight=1)
 search_tab.rowconfigure(0, weight=8)
-search_tab.rowconfigure(1,weight=1)
+search_tab.rowconfigure(1, weight=1)
 
 searchlist = Listbox(search_tab)
 searchlist.grid(row=0, column=0, sticky="nsew", columnspan=3)
 searchlist.columnconfigure(0, weight=1)
 searchlist.rowconfigure(0, weight=1)
 
-yscroll = Scrollbar(searchlist,command=searchlist.yview, orient=VERTICAL)
+yscroll = Scrollbar(searchlist, command=searchlist.yview, orient=VERTICAL)
 yscroll.grid(row=0, column=1, sticky='ns')
 searchlist.configure(yscrollcommand=yscroll.set)
 
 search_label = Label(search_tab, text="Search: ")
-search_label.grid(row=1, column=0,sticky=W)
+search_label.grid(row=1, column=0, sticky=W)
 
 search_input = Entry(search_tab)
 search_input.grid(row=1, column=1, sticky=EW)
 
+
 def clear_search():
-    search_input.delete(0,END)
+    search_input.delete(0, END)
     e = None
     search_games(e)
 
-clr_srch_btn = Button(search_tab, text="Clear",command=clear_search)
-clr_srch_btn.grid(row=1, column=2,sticky=E)
+
+clr_srch_btn = Button(search_tab, text="Clear", command=clear_search)
+clr_srch_btn.grid(row=1, column=2, sticky=E)
+
 
 def search_games(e):
-    searchlist.delete(0,END)
-    templist = [x for x in gamelist_array if search_input.get().lower() in x.listname.lower()]
-    templist.sort(key =lambda game: game.listname,reverse=True)
+    searchlist.delete(0, END)
+    templist = [x for x in gamelist_array if search_input.get().lower()
+                in x.listname.lower()]
+    templist.sort(key=lambda game: game.listname, reverse=True)
     for game in templist:
         if game.region in filters and decode_titleid(game.titleid) in filters:
             if settings.ticketOnly and str(game.ticket) == "False":
@@ -202,13 +226,15 @@ def search_games(e):
             else:
                 searchlist.insert(0, game.listname)
 
+
 search_input.bind('<KeyRelease>', search_games)
 
 infobox = Text(search_tab, height=10, width=30)
 infobox.grid(row=0, column=3, sticky="nsew")
 
-dl_btn = Button(search_tab, text="Download",command=download_games)
+dl_btn = Button(search_tab, text="Download", command=download_games)
 dl_btn.grid(row=1, column=3)
+
 
 def search_select(e):
     global current_selected
@@ -218,7 +244,7 @@ def search_select(e):
         if game.listname == str(searchlist.get(searchlist.curselection())):
             current_selected = game
             game.size = get_title_size(game.titleid)
-            infobox.insert(END,"Name: " + game.name + "\n")
+            infobox.insert(END, "Name: " + game.name + "\n")
             infobox.insert(END, "Region: " + game.region + "\n")
             infobox.insert(END, "Type: " + game.type + "\n")
             infobox.insert(END, "TitleID: " + game.titleid + "\n")
@@ -229,38 +255,45 @@ def search_select(e):
                 infobox.insert(END, "Description: " + game.description)
             infobox.config(state="disabled")
 
+
 searchlist.bind('<ButtonRelease-1>', search_select)
 
 
-
-#downloads tab
+# downloads tab
 downloads_tab = Frame(note)
 
-downloads_tab.columnconfigure(0,weight=1)
-downloads_tab.columnconfigure(1,weight=1)
-downloads_tab.rowconfigure(0,weight=1)
+downloads_tab.columnconfigure(0, weight=1)
+downloads_tab.columnconfigure(1, weight=1)
+downloads_tab.rowconfigure(0, weight=1)
 
 downloadlist = Listbox(downloads_tab, height=20, width=20)
-downloadlist.grid(row=0, column=0, sticky=NSEW,columnspan=2)
+downloadlist.grid(row=0, column=0, sticky=NSEW, columnspan=2)
 
 downloadlist.columnconfigure(0, weight=1)
 downloadlist.rowconfigure(0, weight=1)
-yscroll = Scrollbar(downloadlist,command=downloadlist.yview, orient=VERTICAL)
+yscroll = Scrollbar(downloadlist, command=downloadlist.yview, orient=VERTICAL)
 yscroll.grid(row=0, column=1, sticky='ns')
 downloadlist.configure(yscrollcommand=yscroll.set)
+
 
 def download_select(e):
     if len(downloadlist.curselection()) > 0:
         global current_selected_download
-        current_selected_download = " - ".join(str(downloadlist.get(downloadlist.curselection())).split(" - ")[0:3]) 
+        current_selected_download = " - ".join(
+            str(downloadlist.get(downloadlist.curselection())).split(" - ")[0:3])
+
 
 downloadlist.bind('<ButtonRelease-1>', download_select)
+
 
 def cancel_selected():
     downloader.cancel_download(current_selected_download)
 
-rmv_btn = Button(downloads_tab, text="Cancel Selected",command=cancel_selected)
-rmv_btn.grid(row=1, column=0,sticky=NE)
+
+rmv_btn = Button(downloads_tab, text="Cancel Selected",
+                 command=cancel_selected)
+rmv_btn.grid(row=1, column=0, sticky=NE)
+
 
 def clear_complete():
     downloadlist.delete(0, END)
@@ -271,14 +304,15 @@ def clear_complete():
         else:
             download_list.remove(game)
 
-clr_btn = Button(downloads_tab, text="Clear Complete",command=clear_complete)
-clr_btn.grid(row=1, column=1,sticky=NW)
+
+clr_btn = Button(downloads_tab, text="Clear Complete", command=clear_complete)
+clr_btn.grid(row=1, column=1, sticky=NW)
 
 
 spacer_label2 = Label(downloads_tab, text="")
-spacer_label2.grid(row=3, column=0 ,sticky=NSEW,columnspan=2)
+spacer_label2.grid(row=3, column=0, sticky=NSEW, columnspan=2)
 
-#settings_tab stuff here
+# settings_tab stuff here
 settings_tab = Frame(note)
 settings_tab.rowconfigure(0, weight=1)
 settings_tab.rowconfigure(1, weight=1)
@@ -297,7 +331,6 @@ settings_tab.rowconfigure(13, weight=1)
 settings_tab.rowconfigure(14, weight=1)
 
 
-
 settings_tab.columnconfigure(0, weight=1)
 settings_tab.columnconfigure(1, weight=1)
 settings_tab.columnconfigure(2, weight=1)
@@ -305,33 +338,38 @@ settings_tab.columnconfigure(3, weight=1)
 
 
 url_label = Label(settings_tab, text="Title Key Website: (xxxx.xxxxxxxxx.com)")
-url_label.grid(row=0, column=0,sticky=EW)
+url_label.grid(row=0, column=0, sticky=EW)
 url_input = Entry(settings_tab, width=20)
 url_input.grid(row=0, column=1, sticky=EW)
 
+
 def update_tilekey_json():
     if settings.titleKeyURL != "":
-            site = settings.titleKeyURL
-            if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
-                download_titlekeys_json()
-                load_titlekeys()
-                refresh_gamelist()
-            else:
-                message.showwarning("Wrong URL", "The url is incorrect\nfix it and then save the settings and try again")
+        site = settings.titleKeyURL
+        if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
+            download_titlekeys_json()
+            load_titlekeys()
+            refresh_gamelist()
+        else:
+            message.showwarning(
+                "Wrong URL", "The url is incorrect\nfix it and then save the settings and try again")
     else:
         log("Title key site not set in settings")
+
 
 update_btn = Button(settings_tab, text="Download", command=update_tilekey_json)
 update_btn.grid(row=0, column=3, sticky=W)
 
 dlKeys_chk = IntVar()
-dlKeys_checkbox = Checkbutton(settings_tab,text = "Download titlekeys on startup",command = toggle_dlkeys,variable=dlKeys_chk)
+dlKeys_checkbox = Checkbutton(
+    settings_tab, text="Download titlekeys on startup", command=toggle_dlkeys, variable=dlKeys_chk)
 dlKeys_checkbox.grid(row=1, column=0, sticky=W)
 if settings.dlKeysStartup:
     dlKeys_chk.set(1)
 
 dlRss_chk = IntVar()
-dlRss_checkbox = Checkbutton(settings_tab,text = "Download Rss on startup",command = toggle_dlrss,variable=dlRss_chk)
+dlRss_checkbox = Checkbutton(
+    settings_tab, text="Download Rss on startup", command=toggle_dlrss, variable=dlRss_chk)
 dlRss_checkbox.grid(row=2, column=0, sticky=W)
 if settings.dlRssStartup:
     dlRss_chk.set(1)
@@ -340,22 +378,25 @@ downloaddir = Label(settings_tab, text="Download Folder:")
 downloaddir.grid(row=3, column=0, sticky=EW)
 
 downloaddir_input = Entry(settings_tab, width=20)
-downloaddir_input.grid(row=3, column=1, sticky=EW,columnspan=2)
+downloaddir_input.grid(row=3, column=1, sticky=EW, columnspan=2)
+
 
 def set_download_rirectory():
     dir = tkFileDialog.askdirectory()
     if dir != ():
         settings.downloadDir = dir
-        downloaddir_input.delete(0,END)
-        downloaddir_input.insert(0,settings.downloadDir)
+        downloaddir_input.delete(0, END)
+        downloaddir_input.insert(0, settings.downloadDir)
 
-browse_btn = Button(settings_tab, text="Browse", command=set_download_rirectory)
+
+browse_btn = Button(settings_tab, text="Browse",
+                    command=set_download_rirectory)
 browse_btn.grid(row=3, column=3, sticky=W)
 
 retry_label = Label(settings_tab, text="Download Retries")
 retry_label.grid(row=4, column=0, sticky=EW)
 
-retry_drop = Combobox(settings_tab,state="readonly",width=5,values=range(5))
+retry_drop = Combobox(settings_tab, state="readonly", width=5, values=range(5))
 retry_drop.set(settings.retry)
 retry_drop.bind("<<ComboboxSelected>>", update_max_retry)
 retry_drop.grid(row=4, column=1, sticky=W)
@@ -363,116 +404,128 @@ retry_drop.grid(row=4, column=1, sticky=W)
 max_download_label = Label(settings_tab, text="Max multiple downloads:")
 max_download_label.grid(row=5, column=0, sticky=EW)
 
-max_download_drop = Combobox(settings_tab,state="readonly",width=5,values=range(1,6))
+max_download_drop = Combobox(
+    settings_tab, state="readonly", width=5, values=range(1, 6))
 max_download_drop.set(settings.maxDownloads)
 max_download_drop.bind("<<ComboboxSelected>>", update_max_downloads)
 max_download_drop.grid(row=5, column=1, sticky=W)
 
 ticketonly_chk = IntVar()
-ticketonly_checkbox = Checkbutton(settings_tab,text = "Only show games with tickets",command = toggle_ticket_only,variable=ticketonly_chk)
+ticketonly_checkbox = Checkbutton(
+    settings_tab, text="Only show games with tickets", command=toggle_ticket_only, variable=ticketonly_chk)
 ticketonly_checkbox.grid(row=6, column=0, sticky=W)
 if settings.ticketOnly:
     ticketonly_chk.set(1)
 
 patchdemo_chk = IntVar()
-patchdemo_checkbox = Checkbutton(settings_tab,text = "Patch demos to remove any play count limits",command = toggle_patch_demo,variable=patchdemo_chk)
+patchdemo_checkbox = Checkbutton(
+    settings_tab, text="Patch demos to remove any play count limits", command=toggle_patch_demo, variable=patchdemo_chk)
 patchdemo_checkbox.grid(row=7, column=0, sticky=W)
 if settings.patchDEMO:
     patchdemo_chk.set(1)
 
 patchdlc_chk = IntVar()
-patchdlc_checkbox = Checkbutton(settings_tab,text = "Patch DLC to unlock all pieces of DLC",command = toggle_patch_dlc,variable=patchdlc_chk)
+patchdlc_checkbox = Checkbutton(
+    settings_tab, text="Patch DLC to unlock all pieces of DLC", command=toggle_patch_dlc, variable=patchdlc_chk)
 patchdlc_checkbox.grid(row=7, column=1, sticky=W)
 if settings.patchDLC:
     patchdlc_chk.set(1)
 
 
 region_label = Label(settings_tab, text="Region Filters:")
-region_label.grid(row=8, column=0 ,sticky=W)
+region_label.grid(row=8, column=0, sticky=W)
 
 showusa_chk = IntVar()
-showusa_checkbox = Checkbutton(settings_tab,text = "USA",command = toggle_show_usa,variable=showusa_chk)
+showusa_checkbox = Checkbutton(
+    settings_tab, text="USA", command=toggle_show_usa, variable=showusa_chk)
 showusa_checkbox.grid(row=9, column=0, sticky=W)
 if "USA" in settings.filters:
     showusa_chk.set(1)
 
 showjpn_chk = IntVar()
-showjpn_checkbox = Checkbutton(settings_tab,text = "JPN",command = toggle_show_jpn,variable=showjpn_chk)
+showjpn_checkbox = Checkbutton(
+    settings_tab, text="JPN", command=toggle_show_jpn, variable=showjpn_chk)
 showjpn_checkbox.grid(row=9, column=1, sticky=W)
 if "JPN" in settings.filters:
     showjpn_chk.set(1)
 
 showeur_chk = IntVar()
-showeur_checkbox = Checkbutton(settings_tab,text = "EUR",command = toggle_show_eur,variable=showeur_chk)
+showeur_checkbox = Checkbutton(
+    settings_tab, text="EUR", command=toggle_show_eur, variable=showeur_chk)
 showeur_checkbox.grid(row=9, column=2, sticky=W)
 if "EUR" in settings.filters:
     showeur_chk.set(1)
 
 region_label = Label(settings_tab, text="Type Filters:")
-region_label.grid(row=10, column=0 ,sticky=W)
+region_label.grid(row=10, column=0, sticky=W)
 
 showdlc_chk = IntVar()
-showdlc_checkbox = Checkbutton(settings_tab,text = "DLC",command = toggle_show_dlc,variable=showdlc_chk)
+showdlc_checkbox = Checkbutton(
+    settings_tab, text="DLC", command=toggle_show_dlc, variable=showdlc_chk)
 showdlc_checkbox.grid(row=11, column=0, sticky=W)
 if "DLC" in settings.filters:
     showdlc_chk.set(1)
 
 showupdate_chk = IntVar()
-showupdate_checkbox = Checkbutton(settings_tab,text = "Update",command = toggle_show_update,variable=showupdate_chk)
+showupdate_checkbox = Checkbutton(
+    settings_tab, text="Update", command=toggle_show_update, variable=showupdate_chk)
 showupdate_checkbox.grid(row=11, column=1, sticky=W)
 if "UPDATE" in settings.filters:
     showupdate_chk.set(1)
 
 showdemo_chk = IntVar()
-showdemo_checkbox = Checkbutton(settings_tab,text = "Demo",command = toggle_show_demo,variable=showdemo_chk)
+showdemo_checkbox = Checkbutton(
+    settings_tab, text="Demo", command=toggle_show_demo, variable=showdemo_chk)
 showdemo_checkbox.grid(row=11, column=2, sticky=W)
 if "DEMO" in settings.filters:
     showdemo_chk.set(1)
 
 showgame_chk = IntVar()
-showgame_checkbox = Checkbutton(settings_tab,text = "GAME",command = toggle_show_game,variable=showgame_chk)
+showgame_checkbox = Checkbutton(
+    settings_tab, text="GAME", command=toggle_show_game, variable=showgame_chk)
 showgame_checkbox.grid(row=11, column=3)
 if "GAME" in settings.filters:
     showgame_chk.set(1)
 
-downloaddir_input.delete(0,END)
+downloaddir_input.delete(0, END)
 if settings.downloadDir == "":
     settings.downloadDir = os.getcwd()
-    downloaddir_input.insert(0,settings.downloadDir)
+    downloaddir_input.insert(0, settings.downloadDir)
 else:
     downloaddir_input.insert(0, settings.downloadDir)
 
 save_btn = Button(settings_tab, text="Save", command=save_settings)
-save_btn.grid(row=12, column=0,columnspan=5)
+save_btn.grid(row=12, column=0, columnspan=5)
 spacer = Label(settings_tab).grid(row=13, column=0)
 
-#log_tab
+# log_tab
 log_tab = Frame(note)
-log_tab.rowconfigure(0,weight=1)
-log_tab.columnconfigure(0,weight=1)
+log_tab.rowconfigure(0, weight=1)
+log_tab.columnconfigure(0, weight=1)
 logbox = Text(log_tab)
 logbox.grid(row=0, column=0, sticky="nsew")
 logbox.columnconfigure(0, weight=1)
 logbox.rowconfigure(0, weight=1)
-yscroll = Scrollbar(logbox,command=logbox.yview, orient=VERTICAL)
+yscroll = Scrollbar(logbox, command=logbox.yview, orient=VERTICAL)
 yscroll.grid(row=0, column=1, sticky='ns')
 logbox.configure(yscrollcommand=yscroll.set)
 logbox.config(state="disabled")
 
-#rss_tab
+# rss_tab
 rss_tab = Frame(note)
 rss_tab.rowconfigure(0)
-rss_tab.rowconfigure(1,weight=1)
-rss_tab.columnconfigure(0,weight=1)
+rss_tab.rowconfigure(1, weight=1)
+rss_tab.columnconfigure(0, weight=1)
 
 rssbox = Text(rss_tab)
 rssbox.grid(row=1, column=0, sticky="nsew")
 rssbox.columnconfigure(0, weight=1)
 rssbox.rowconfigure(1, weight=1)
-yscroll = Scrollbar(rssbox,command=rssbox.yview, orient=VERTICAL)
+yscroll = Scrollbar(rssbox, command=rssbox.yview, orient=VERTICAL)
 yscroll.grid(row=1, column=1, sticky='ns')
 rssbox.configure(yscrollcommand=yscroll.set)
 rssbox.config(state="disabled")
+
 
 def update_rss():
     if settings.titleKeyURL != "":
@@ -482,33 +535,37 @@ def update_rss():
             if os.path.isfile("titlekeysrss.xml"):
                 e = xml.etree.ElementTree.parse('titlekeysrss.xml').getroot()
                 rssbox.config(state="normal")
-                rssbox.delete("1.0",END)
-                rssbox.insert("1.0", "Last Build Date: " + e.find("channel").find("lastBuildDate").text + "\n")
+                rssbox.delete("1.0", END)
+                rssbox.insert("1.0", "Last Build Date: " +
+                              e.find("channel").find("lastBuildDate").text + "\n")
                 for item in e.find("channel").findall("item"):
                     rssbox.insert(END, "------------------" + "\n")
                     for child in item:
                         if child.text != None:
-                            rssbox.insert(END,child.tag + ":" + child.text + "\n")
+                            rssbox.insert(END, child.tag +
+                                          ":" + child.text + "\n")
                 rssbox.config(state="disabled")
         else:
             log("Incorrect titlekey url")
 
+
 def refresh_btn():
-    thread.start_new_thread(update_rss,())
+    thread.start_new_thread(update_rss, ())
+
 
 refresh_btn = Button(rss_tab, text="Refresh", command=refresh_btn)
 refresh_btn.grid(row=0, column=0)
 
-#about_tab stuff here
+# about_tab stuff here
 about_tab = Frame(note)
-about_tab.rowconfigure(0,weight=1)
-about_tab.columnconfigure(0,weight=1)
-aboutbox= Text(about_tab)
+about_tab.rowconfigure(0, weight=1)
+about_tab.columnconfigure(0, weight=1)
+aboutbox = Text(about_tab)
 aboutbox.grid(row=0, column=0, sticky="nsew")
 try:
     with open("about.txt") as about:
         for line in about:
-            aboutbox.insert(END,line)
+            aboutbox.insert(END, line)
     aboutbox.config(state="disabled")
 except Exception as e:
     log("about.txt not found")
@@ -517,6 +574,7 @@ except Exception as e:
 
 def handler():
     root.destroy()
+
 
 def enrich_gamelist():
     log("Attempting to enrich game data")
@@ -538,7 +596,8 @@ def enrich_gamelist():
             if record["titleID"] is not None:
                 gameupdate.titleid = record["titleID"]
                 gameupdate.type = decode_titleid(record["titleID"])
-            gameupdate.listname = gameupdate.name + " - " + gameupdate.type + " - " + gameupdate.region
+            gameupdate.listname = gameupdate.name + " - " + \
+                gameupdate.type + " - " + gameupdate.region
             if record["ticket"] == "1":
                 gameupdate.ticket = True
             else:
@@ -546,12 +605,11 @@ def enrich_gamelist():
             if gameupdate.name != "":
                 temp_gamelist_array.append(gameupdate)
 
-    
     if os.path.isfile("wiiutitles.json"):
         with open('wiiutitles.json') as jsonfile:
             parsed_json = json.load(jsonfile)
             for record in parsed_json:
-                titleid = record["titleid"].replace("-","")
+                titleid = record["titleid"].replace("-", "")
                 gameid = record["gameid"]
                 if gameid != "":
                     for game in temp_gamelist_array:
@@ -577,6 +635,7 @@ def enrich_gamelist():
     gamelist_array = list(temp_gamelist_array)
     gamelist_array.sort(key=lambda game: game.listname)
     log("Game data updated with data from wiiutdb")
+
 
 def load_titlekeys():
     global gamelist_array
@@ -607,32 +666,38 @@ def load_titlekeys():
     except IOError as e:
         log("Unable to load titlekeys")
 
+
 def check_tilekey_json():
     if settings.titleKeyURL != "":
         if not os.path.isfile("titlekeys.json"):
             site = settings.titleKeyURL
             if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
-                message.showinfo("Success!","Correct titlekey URL\n we will now download the file and refresh")
-                thread.start_new(update_tilekey_json,())
+                message.showinfo(
+                    "Success!", "Correct titlekey URL\n we will now download the file and refresh")
+                thread.start_new(update_tilekey_json, ())
             else:
-                message.showwarning("Wrong URL", "You entered the wrong URL\n please try again")
+                message.showwarning(
+                    "Wrong URL", "You entered the wrong URL\n please try again")
         else:
             load_titlekeys()
             refresh_gamelist()
     else:
         log("Title key site not set in settings")
 
+
 def update_tilekey_json():
     if settings.titleKeyURL != "":
-            site = settings.titleKeyURL
-            if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
-                download_titlekeys_json()
-                load_titlekeys()
-                refresh_gamelist()
-            else:
-                message.showwarning("Wrong URL", "You entered the wrong URL\n please try again")
+        site = settings.titleKeyURL
+        if fnk.hashlib.md5(site.encode('utf-8')).hexdigest() == fnk.KEYSITE_MD5:
+            download_titlekeys_json()
+            load_titlekeys()
+            refresh_gamelist()
+        else:
+            message.showwarning(
+                "Wrong URL", "You entered the wrong URL\n please try again")
     else:
         log("Title key site not set in settings")
+
 
 def refresh_gamelist():
     searchlist.delete(0, END)
@@ -644,6 +709,7 @@ def refresh_gamelist():
                 pass
             else:
                 searchlist.insert(0, game.listname)
+
 
 def initialize_funkiiu_config():
     try:
@@ -660,6 +726,7 @@ def initialize_funkiiu_config():
         else:
             print('Wrong key site provided. Try again')
 
+
 def update_log_tab():
     while 1:
         time.sleep(2)
@@ -668,15 +735,16 @@ def update_log_tab():
                 loglist = get_logs()
                 logbox.config(state="normal")
                 for log in loglist:
-                    logbox.insert("1.0",log+"\n")
+                    logbox.insert("1.0", log + "\n")
                 logbox.config(state="disabled")
         except:
             pass
 
+
 note.add(search_tab, text="Search")
 note.add(downloads_tab, text="Downloads")
-note.add(settings_tab, text= "Settings")
-note.add(rss_tab, text= "RSS")
+note.add(settings_tab, text="Settings")
+note.add(rss_tab, text="RSS")
 note.add(log_tab, text="Logs")
 note.add(about_tab, text="About")
 
@@ -684,24 +752,24 @@ root.protocol("WM_DELETE_WINDOW", handler)
 
 # initialization steps
 
-url_input.insert(0,settings.titleKeyURL)
+url_input.insert(0, settings.titleKeyURL)
 check_tilekey_json()
 refresh_gamelist()
 initialize_funkiiu_config()
-thread.start_new_thread(update_rss,())
-thread.start_new_thread(enrich_gamelist,())
+thread.start_new_thread(update_rss, ())
+thread.start_new_thread(enrich_gamelist, ())
 
 
 if settings.titleKeyNag:
-    message.showinfo("Title Keys","Before you can download any games\nYou will need to add the url from that title keys website\nin the settings and save.")
+    message.showinfo(
+        "Title Keys", "Before you can download any games\nYou will need to add the url from that title keys website\nin the settings and save.")
     settings.titleKeyNag = False
     note.select(settings_tab)
     url_input.focus_force()
     save_settings()
 
 
-thread.start_new_thread(update_log_tab,())
-
+thread.start_new_thread(update_log_tab, ())
 
 
 try:

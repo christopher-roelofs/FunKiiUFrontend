@@ -16,6 +16,7 @@ retry = ""
 dlKeysStartup = ""
 dlRssStartup = ""
 
+
 def create_settings():
     """Create an empty settings file."""
     settings = ConfigParser.RawConfigParser()
@@ -107,7 +108,6 @@ def save_settings():
     settings.set("Settings", "dlKeysStartup", dlKeysStartup)
     settings.set("Settings", "dlRssStartup", dlRssStartup)
 
-
     if "USA" in filters:
         settings.set("Settings", "showUSA", "True")
     else:
@@ -148,11 +148,11 @@ def save_settings():
         logger.log("Settings saved")
 
 
-
 def set_title_key_url(url):
     """Set the title key url"""
     global titleKeyURL
     titleKeyURL = url
+
 
 try:
     with open("settings.cfg") as settingsfile:

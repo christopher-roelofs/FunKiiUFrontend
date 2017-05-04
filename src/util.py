@@ -12,12 +12,14 @@ import xml.etree.ElementTree
 funkiiu_url = "https://raw.githubusercontent.com/llakssz/FunKiiU/master/FunKiiUmod.py"
 wiiutdb_url = "http://www.gametdb.com/wiiutdb.zip"
 
+
 def download_funkiiu():
     try:
         urllib.urlretrieve(funkiiu_url, "FunKiiUmod.py")
         log("FunKiiU successfully downloaded.")
     except Exception as error:
         log(error)
+
 
 def unpack_zip(zip_name):
     try:
@@ -27,6 +29,7 @@ def unpack_zip(zip_name):
         os.remove(zip_name)
     except Exception as e:
         log('Error:' + e)
+
 
 class Game(object):
     def __init__(self):
@@ -44,21 +47,26 @@ class Game(object):
         self.downloadcallback = ""
         self.gameid = ""
 
+
 def download_titlekeys_json():
     log("Attempting to download titlekey json...")
     try:
-        urllib.urlretrieve("http://" + settings.titleKeyURL + "/json", "titlekeys.json")
+        urllib.urlretrieve("http://" + settings.titleKeyURL +
+                           "/json", "titlekeys.json")
         log("titlekeys.json successfully downloaded.")
     except Exception as error:
-        log(error)
+        log(error.message)
+
 
 def download_titlekeys_rss():
     log("Attempting to download titlekey rss...")
     try:
-        urllib.urlretrieve("http://" + settings.titleKeyURL + "/rss", "titlekeysrss.xml")
+        urllib.urlretrieve("http://" + settings.titleKeyURL +
+                           "/rss", "titlekeysrss.xml")
         log("titlekeysrss.xml successfully downloaded.")
     except Exception as error:
         log("Failed to download rss feed:" + error)
+
 
 def download_wiiutdb():
     log("Attempting to download wiiutdb.zip")
@@ -69,6 +77,7 @@ def download_wiiutdb():
         log("wiiutdb.xml extracted")
     except Exception as error:
         log(error)
+
 
 def decode_titleid(titleid):
     content_type = ""
@@ -82,8 +91,10 @@ def decode_titleid(titleid):
         content_type = 'DEMO'
     return content_type
 
+
 def get_title_size(titleid):
-    baseurl = 'http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/{}'.format(titleid)
+    baseurl = 'http://ccs.cdn.c.shop.nintendowifi.net/ccs/download/{}'.format(
+        titleid)
     TK = fnk.TK
     if not fnk.download_file(baseurl + '/tmd', 'title.tmd', 1):
         log('ERROR: Could not download TMD...')
@@ -98,5 +109,6 @@ def get_title_size(titleid):
         for i in range(content_count):
             c_offs = 0xB04 + (0x30 * i)
             c_id = binascii.hexlify(tmd[c_offs:c_offs + 0x04]).decode()
-            total_size += int(binascii.hexlify(tmd[c_offs + 0x08:c_offs + 0x10]), 16)
+            total_size += int(binascii.hexlify(
+                tmd[c_offs + 0x08:c_offs + 0x10]), 16)
         return fnk.bytes2human(total_size)
