@@ -2,6 +2,7 @@
 
 import shutil
 import os
+from logger import *
 
 
 def delete_folder(path):
@@ -10,7 +11,12 @@ def delete_folder(path):
 
 def list_files(directory):
     """Get a list of filename in a directory."""
-    return os.listdir(directory)
+    try:
+        return os.listdir(directory)
+    except Exception as e:
+        log('Error listing files for directory "{}": '.format(directory) + repr(e))
+        temp = []
+        return temp
 
 def copy_file(fsrc, ftgt, callback=None, length=16*1024):
     """Copy a file by chunks.Default is 16*1024."""
@@ -43,6 +49,3 @@ def move_file(fsrc, fdst, callback=None, length=16*1024):
             print str((int((float(copied)) / (float(os.path.getsize(fsrc)))) * 100)) + "%"
         target.close()
         os.remove(fsrc)
-
-
-copy_file("about.txt","about1.txt")

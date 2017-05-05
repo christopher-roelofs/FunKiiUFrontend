@@ -18,6 +18,7 @@ import os
 import thread
 import xml.etree.ElementTree
 import FunKiiUmod as fnk
+import fileUtil
 
 gamelist_array = []
 download_list = []
@@ -312,6 +313,59 @@ clr_btn.grid(row=1, column=1, sticky=NW)
 spacer_label2 = Label(downloads_tab, text="")
 spacer_label2.grid(row=3, column=0, sticky=NSEW, columnspan=2)
 
+#library_tab stuff here
+library_tab = Frame(note)
+
+library_tab.columnconfigure(0)
+library_tab.columnconfigure(1, weight=2)
+library_tab.columnconfigure(2)
+library_tab.columnconfigure(3, weight=1)
+library_tab.rowconfigure(0, weight=8)
+library_tab.rowconfigure(1, weight=1)
+
+librarylist = Listbox(library_tab)
+librarylist.grid(row=0, column=0, sticky="nsew", columnspan=3)
+librarylist.columnconfigure(0, weight=1)
+librarylist.rowconfigure(0, weight=1)
+
+yscroll = Scrollbar(librarylist, command=librarylist.yview, orient=VERTICAL)
+yscroll.grid(row=0, column=1, sticky='ns')
+librarylist.configure(yscrollcommand=yscroll.set)
+
+search_library_label = Label(library_tab, text="Search: ")
+search_library_label.grid(row=1, column=0, sticky=W)
+
+search_library_input = Entry(library_tab)
+search_library_input.grid(row=1, column=1, sticky=EW)
+
+def search_library(e):
+    librarylist.delete(0, END)
+    templist = [x for x in fileUtil.list_files(settings.libraryDir) if search_library_input.get().lower()
+                in x.lower()]
+    templist.sort(key=lambda game: game, reverse=True)
+    for game in templist:
+        librarylist.insert(0, game)
+
+search_library_input.bind('<KeyRelease>', search_library)
+
+def clear_library_search():
+    search_library_input.delete(0, END)
+    e = None
+    search_library(e)
+
+
+clr_srch_lbr_btn = Button(library_tab, text="Clear", command=clear_library_search)
+clr_srch_lbr_btn.grid(row=1, column=2, sticky=E)
+
+library_infobox = Text(library_tab, height=10, width=30)
+library_infobox.grid(row=0, column=3, sticky="nsew")
+
+def refresh_librarylist():
+    librarylist.delete(0, END)
+    for file in fileUtil.list_files(settings.libraryDir):
+        librarylist.insert(0,file)
+
+
 # settings_tab stuff here
 settings_tab = Frame(note)
 settings_tab.rowconfigure(0, weight=1)
@@ -328,6 +382,7 @@ settings_tab.rowconfigure(10, weight=1)
 settings_tab.rowconfigure(11, weight=1)
 settings_tab.rowconfigure(12, weight=1)
 settings_tab.rowconfigure(13, weight=1)
+settings_tab.rowconfigure(14, weight=1)
 settings_tab.rowconfigure(14, weight=1)
 
 
@@ -374,12 +429,11 @@ dlRss_checkbox.grid(row=2, column=0, sticky=W)
 if settings.dlRssStartup:
     dlRss_chk.set(1)
 
-downloaddir = Label(settings_tab, text="Download Folder:")
-downloaddir.grid(row=3, column=0, sticky=EW)
+downloaddir_label = Label(settings_tab, text="Download Folder:")
+downloaddir_label.grid(row=3, column=0, sticky=EW)
 
 downloaddir_input = Entry(settings_tab, width=20)
 downloaddir_input.grid(row=3, column=1, sticky=EW, columnspan=2)
-
 
 def set_download_rirectory():
     dir = tkFileDialog.askdirectory()
@@ -387,103 +441,123 @@ def set_download_rirectory():
         settings.downloadDir = dir
         downloaddir_input.delete(0, END)
         downloaddir_input.insert(0, settings.downloadDir)
+        
 
 
 browse_btn = Button(settings_tab, text="Browse",
                     command=set_download_rirectory)
 browse_btn.grid(row=3, column=3, sticky=W)
 
+librarydir_label = Label(settings_tab, text="Library Folder:")
+librarydir_label.grid(row=4, column=0, sticky=EW)
+
+librarydir_input = Entry(settings_tab, width=20)
+librarydir_input.grid(row=4, column=1, sticky=EW, columnspan=2)
+
+def set_library_directory():
+    dir = tkFileDialog.askdirectory()
+    if dir != ():
+        settings.libraryDir = dir
+        librarydir_input.delete(0, END)
+        librarydir_input.insert(0, settings.libraryDir)
+        refresh_librarylist()
+
+
+browse_lib_btn = Button(settings_tab, text="Browse",
+                    command=set_library_directory)
+browse_lib_btn.grid(row=4, column=3, sticky=W)
+
 retry_label = Label(settings_tab, text="Download Retries")
-retry_label.grid(row=4, column=0, sticky=EW)
+retry_label.grid(row=5, column=0, sticky=EW)
 
 retry_drop = Combobox(settings_tab, state="readonly", width=5, values=range(5))
 retry_drop.set(settings.retry)
 retry_drop.bind("<<ComboboxSelected>>", update_max_retry)
-retry_drop.grid(row=4, column=1, sticky=W)
+retry_drop.grid(row=5, column=1, sticky=W)
 
 max_download_label = Label(settings_tab, text="Max multiple downloads:")
-max_download_label.grid(row=5, column=0, sticky=EW)
+max_download_label.grid(row=6, column=0, sticky=EW)
 
 max_download_drop = Combobox(
     settings_tab, state="readonly", width=5, values=range(1, 6))
 max_download_drop.set(settings.maxDownloads)
 max_download_drop.bind("<<ComboboxSelected>>", update_max_downloads)
-max_download_drop.grid(row=5, column=1, sticky=W)
+max_download_drop.grid(row=6, column=1, sticky=W)
 
 ticketonly_chk = IntVar()
 ticketonly_checkbox = Checkbutton(
     settings_tab, text="Only show games with tickets", command=toggle_ticket_only, variable=ticketonly_chk)
-ticketonly_checkbox.grid(row=6, column=0, sticky=W)
+ticketonly_checkbox.grid(row=7, column=0, sticky=W)
 if settings.ticketOnly:
     ticketonly_chk.set(1)
 
 patchdemo_chk = IntVar()
 patchdemo_checkbox = Checkbutton(
     settings_tab, text="Patch demos to remove any play count limits", command=toggle_patch_demo, variable=patchdemo_chk)
-patchdemo_checkbox.grid(row=7, column=0, sticky=W)
+patchdemo_checkbox.grid(row=8, column=0, sticky=W)
 if settings.patchDEMO:
     patchdemo_chk.set(1)
 
 patchdlc_chk = IntVar()
 patchdlc_checkbox = Checkbutton(
     settings_tab, text="Patch DLC to unlock all pieces of DLC", command=toggle_patch_dlc, variable=patchdlc_chk)
-patchdlc_checkbox.grid(row=7, column=1, sticky=W)
+patchdlc_checkbox.grid(row=8, column=1, sticky=W)
 if settings.patchDLC:
     patchdlc_chk.set(1)
 
 
 region_label = Label(settings_tab, text="Region Filters:")
-region_label.grid(row=8, column=0, sticky=W)
+region_label.grid(row=9, column=0, sticky=W)
 
 showusa_chk = IntVar()
 showusa_checkbox = Checkbutton(
     settings_tab, text="USA", command=toggle_show_usa, variable=showusa_chk)
-showusa_checkbox.grid(row=9, column=0, sticky=W)
+showusa_checkbox.grid(row=10, column=0, sticky=W)
 if "USA" in settings.filters:
     showusa_chk.set(1)
 
 showjpn_chk = IntVar()
 showjpn_checkbox = Checkbutton(
     settings_tab, text="JPN", command=toggle_show_jpn, variable=showjpn_chk)
-showjpn_checkbox.grid(row=9, column=1, sticky=W)
+showjpn_checkbox.grid(row=10, column=1, sticky=W)
 if "JPN" in settings.filters:
     showjpn_chk.set(1)
 
 showeur_chk = IntVar()
 showeur_checkbox = Checkbutton(
     settings_tab, text="EUR", command=toggle_show_eur, variable=showeur_chk)
-showeur_checkbox.grid(row=9, column=2, sticky=W)
+showeur_checkbox.grid(row=10, column=2, sticky=W)
 if "EUR" in settings.filters:
     showeur_chk.set(1)
 
 region_label = Label(settings_tab, text="Type Filters:")
-region_label.grid(row=10, column=0, sticky=W)
+region_label.grid(row=11, column=0, sticky=W)
 
 showdlc_chk = IntVar()
 showdlc_checkbox = Checkbutton(
     settings_tab, text="DLC", command=toggle_show_dlc, variable=showdlc_chk)
-showdlc_checkbox.grid(row=11, column=0, sticky=W)
+showdlc_checkbox.grid(row=12, column=0, sticky=W)
 if "DLC" in settings.filters:
     showdlc_chk.set(1)
 
 showupdate_chk = IntVar()
 showupdate_checkbox = Checkbutton(
     settings_tab, text="Update", command=toggle_show_update, variable=showupdate_chk)
-showupdate_checkbox.grid(row=11, column=1, sticky=W)
+showupdate_checkbox.grid(row=12, column=1, sticky=W)
 if "UPDATE" in settings.filters:
     showupdate_chk.set(1)
 
 showdemo_chk = IntVar()
 showdemo_checkbox = Checkbutton(
     settings_tab, text="Demo", command=toggle_show_demo, variable=showdemo_chk)
-showdemo_checkbox.grid(row=11, column=2, sticky=W)
+showdemo_checkbox.grid(row=12, column=2, sticky=W)
 if "DEMO" in settings.filters:
     showdemo_chk.set(1)
 
 showgame_chk = IntVar()
 showgame_checkbox = Checkbutton(
     settings_tab, text="GAME", command=toggle_show_game, variable=showgame_chk)
-showgame_checkbox.grid(row=11, column=3)
+showgame_checkbox.grid(row=12, column=3)
 if "GAME" in settings.filters:
     showgame_chk.set(1)
 
@@ -495,8 +569,8 @@ else:
     downloaddir_input.insert(0, settings.downloadDir)
 
 save_btn = Button(settings_tab, text="Save", command=save_settings)
-save_btn.grid(row=12, column=0, columnspan=5)
-spacer = Label(settings_tab).grid(row=13, column=0)
+save_btn.grid(row=13, column=0, columnspan=5)
+spacer = Label(settings_tab).grid(row=14, column=0)
 
 # log_tab
 log_tab = Frame(note)
@@ -743,6 +817,7 @@ def update_log_tab():
 
 note.add(search_tab, text="Search")
 note.add(downloads_tab, text="Downloads")
+note.add(library_tab, text="Library")
 note.add(settings_tab, text="Settings")
 note.add(rss_tab, text="RSS")
 note.add(log_tab, text="Logs")
@@ -755,6 +830,7 @@ root.protocol("WM_DELETE_WINDOW", handler)
 url_input.insert(0, settings.titleKeyURL)
 check_tilekey_json()
 refresh_gamelist()
+refresh_librarylist()
 initialize_funkiiu_config()
 thread.start_new_thread(update_rss, ())
 thread.start_new_thread(enrich_gamelist, ())

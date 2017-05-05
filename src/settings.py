@@ -15,6 +15,7 @@ maxDownloads = ""
 retry = ""
 dlKeysStartup = ""
 dlRssStartup = ""
+libraryDir = ""
 
 
 def create_settings():
@@ -23,6 +24,7 @@ def create_settings():
     settings.add_section("Settings")
     settings.set("Settings", "titleKeyURL", "")
     settings.set("Settings", "downloadDir", "")
+    settings.set("Settings", "libraryDir", "")
     settings.set("Settings", "showUSA", "True")
     settings.set("Settings", "showJPN", "True")
     settings.set("Settings", "showEUR", "True")
@@ -48,6 +50,7 @@ def read_settings():
     settings.read("settings.cfg")
     global titleKeyURL
     global downloadDir
+    global libraryDir
     global ticketOnly
     global patchDEMO
     global patchDLC
@@ -59,6 +62,7 @@ def read_settings():
     global dlRssStartup
     titleKeyURL = settings.get("Settings", "titleKeyURL")
     downloadDir = settings.get("Settings", "downloadDir")
+    libraryDir = settings.get("Settings", "libraryDir")
     ticketOnly = settings.getboolean("Settings", "ticketOnly")
     patchDEMO = settings.getboolean("Settings", "patchDEMO")
     patchDLC = settings.getboolean("Settings", "patchDLC")
@@ -98,6 +102,7 @@ def save_settings():
     settings.add_section("Settings")
     settings.set("Settings", "titleKeyURL", titleKeyURL)
     settings.set("Settings", "downloadDir", downloadDir)
+    settings.set("Settings", "libraryDir", libraryDir)
     settings.set("Settings", "ticketOnly", ticketOnly)
     settings.set("Settings", "patchDEMO", patchDEMO)
     settings.set("Settings", "patchDLC", patchDLC)
