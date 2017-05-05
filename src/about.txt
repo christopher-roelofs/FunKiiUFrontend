@@ -1,0 +1,41 @@
+FunKiiU Frontend
+
+A frontend for FunKiiU written in Python.
+
+Thanks to cearp for writing FunKiiU,cerea1killer for his re-write of FunKiiU, and dojafoja for
+FunkiiUI which I took inspiration from and a couple pieces of code.
+
+https://github.com/llakssz/FunKiiU
+https://github.com/dojafoja/FunKii-UI
+
+Changelog
+
+5-2-17
+Stop download right away when canceling.
+Remove game folder when canceled or failed.
+
+4-30-17 v1.4
+Preliminary wiiutdb support. Need better way to link 4-6 char id from wiiutdb to titlekeys.json.
+Add ability to cancel downloads.
+Add download_file to process_title_id class in FunKiiUmod and hook to callback log.
+
+4-29-17 v1.3
+Fork FunKiiU into FunKiiUmod.
+Fix more unicode issues.
+Show percent downloaded.
+Improve wording of settings descriptions.
+Handle cancel button for setting download directory.
+
+
+4-24-17 v1.2.1
+Change startup threads a bit.
+Update patch demo/dlc descriptions.
+
+4-19-17 v1.2
+Inlcude modified FunKiiU until I refactor it later.
+
+4-19-17 v1.1 
+Fix imports for FunKiiU.
+
+4-19-17 v1.0 
+Initial release.
