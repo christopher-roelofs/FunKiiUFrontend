@@ -392,7 +392,7 @@ settings_tab.columnconfigure(2, weight=1)
 settings_tab.columnconfigure(3, weight=1)
 
 
-url_label = Label(settings_tab, text="Title Key Website: (xxxx.xxxxxxxxx.com)")
+url_label = Label(settings_tab, text="Title Key Website: (http://xxxx.xxxxxxxxx.gq)")
 url_label.grid(row=0, column=0, sticky=EW)
 url_input = Entry(settings_tab, width=20)
 url_input.grid(row=0, column=1, sticky=EW)

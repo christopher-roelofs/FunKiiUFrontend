@@ -55,7 +55,7 @@ def download_titlekeys_json():
                            "/json", "titlekeys.json")
         log("titlekeys.json successfully downloaded.")
     except Exception as error:
-        log(error.message)
+        log(repr(error))
 
 
 def download_titlekeys_rss():
@@ -65,7 +65,7 @@ def download_titlekeys_rss():
                            "/rss", "titlekeysrss.xml")
         log("titlekeysrss.xml successfully downloaded.")
     except Exception as error:
-        log("Failed to download rss feed:" + error)
+        log("Failed to download rss feed:" + repr(error))
 
 
 def download_wiiutdb():
@@ -76,7 +76,7 @@ def download_wiiutdb():
         unpack_zip("wiiutdb.zip")
         log("wiiutdb.xml extracted")
     except Exception as error:
-        log(error)
+        log(repr(error))
 
 
 def decode_titleid(titleid):
