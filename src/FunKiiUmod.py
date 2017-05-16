@@ -379,7 +379,7 @@ class process_title_id(object):
                 return
         elif self.onlinetickets:
             keysite = get_keysite()
-            tikurl = 'https://{}/ticket/{}.tik'.format(keysite, self.title_id)
+            tikurl = '{}/ticket/{}.tik'.format(keysite, self.title_id)
             if not download_file(tikurl, os.path.join(rawdir, 'title.tik'), self.retry_count):
                 self.log(
                     'ERROR: Could not download ticket from {}'.format(keysite))

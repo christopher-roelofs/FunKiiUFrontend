@@ -51,7 +51,7 @@ class Game(object):
 def download_titlekeys_json():
     log("Attempting to download titlekey json...")
     try:
-        urllib.urlretrieve("http://" + settings.titleKeyURL +
+        urllib.urlretrieve(settings.titleKeyURL +
                            "/json", "titlekeys.json")
         log("titlekeys.json successfully downloaded.")
     except Exception as error:
@@ -61,7 +61,7 @@ def download_titlekeys_json():
 def download_titlekeys_rss():
     log("Attempting to download titlekey rss...")
     try:
-        urllib.urlretrieve("http://" + settings.titleKeyURL +
+        urllib.urlretrieve(settings.titleKeyURL +
                            "/rss", "titlekeysrss.xml")
         log("titlekeysrss.xml successfully downloaded.")
     except Exception as error:
